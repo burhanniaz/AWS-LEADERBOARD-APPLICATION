@@ -34,12 +34,12 @@
   }
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold
-           transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg px-4 py-2 text-sm font-semibold
+           transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60;
   }
 
   .btn-primary {
-    @apply btn bg-smile text-squid hover:bg-smile-dark hover:text-white;
+    @apply btn bg-gradient-to-br from-smile to-smile-dark text-white shadow-[0_8px_24px_rgba(123,94,167,0.35)] hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(90,62,158,0.45)] active:translate-y-0;
   }
 
   .btn-secondary {
@@ -72,4 +72,41 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  .font-heading {
+    font-family: var(--font-heading);
+  }
+}
+
+/* Chip-logo signature: soft violet glow blooms used behind dark hero/header surfaces */
+.glow-field {
+  position: relative;
+  isolation: isolate;
+}
+.glow-field::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 90% at 15% -10%, rgba(159, 132, 212, 0.35), transparent 60%),
+    radial-gradient(50% 80% at 100% 110%, rgba(123, 94, 167, 0.28), transparent 60%);
+}
+
+@keyframes btn-shine-sweep {
+  0% { transform: translateX(-120%) skewX(-20deg); }
+  100% { transform: translateX(220%) skewX(-20deg); }
+}
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 30%;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: translateX(-120%) skewX(-20deg);
+  pointer-events: none;
+}
+.btn-primary:hover::after {
+  animation: btn-shine-sweep 0.85s ease;
 }

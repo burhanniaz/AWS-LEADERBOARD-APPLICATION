@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Outfit } from 'next/font/google'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' })
+const outfit = Outfit({ subsets: ['latin'], variable: '--font-heading', display: 'swap' })
 
 export const metadata: Metadata = {
   title: {
@@ -16,12 +17,12 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#232F3E',
+  themeColor: '#1B0E33',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
       <body className="min-h-screen">{children}</body>
     </html>
   )

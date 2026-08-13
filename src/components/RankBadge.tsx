@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 
 const MEDALS: Record<number, string> = {
-  1: 'bg-smile text-squid ring-smile/40',
+  1: 'bg-smile text-white ring-smile/40',
   2: 'bg-[#C0C6CE] text-squid ring-[#C0C6CE]/40',
   3: 'bg-[#CD8B62] text-white ring-[#CD8B62]/40',
 }

@@ -19,7 +19,7 @@ export function BrandLock({ href = '/' }: { href?: string }) {
     <Link href={href} className="flex items-center gap-3 text-white">
       <AwsMark />
       <span className="hidden h-8 w-px bg-white/25 sm:block" />
-      <span className="hidden text-sm font-semibold leading-tight sm:block">
+      <span className="hidden font-heading text-sm font-semibold leading-tight sm:block">
         AWS UET Taxila
         <span className="block text-xs font-normal text-white/60">Builder Leaderboard</span>
       </span>

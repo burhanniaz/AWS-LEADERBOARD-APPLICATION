@@ -15,7 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-40 bg-squid text-white">
+      <header className="glow-field sticky top-0 z-40 bg-squid text-white">
         <div className="container-page flex h-16 items-center justify-between gap-4">
           <BrandLock href="/admin" />
           <div className="flex items-center gap-3">

@@ -5,35 +5,37 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // AWS brand-inspired palette
+        // Chip-logo brand palette — deep violet ink + purple accent glow
         squid: {
-          DEFAULT: '#232F3E', // AWS Squid Ink
-          light: '#2E3B4E',
-          dark: '#161E2D',
+          DEFAULT: '#1B0E33', // deep violet ink
+          light: '#2C1B4D',
+          dark: '#100821',
         },
         smile: {
-          DEFAULT: '#FF9900', // AWS Smile Orange
-          dark: '#EC7211',
-          light: '#FFAC31',
+          DEFAULT: '#7B5EA7', // primary purple accent
+          dark: '#5A3E9E',
+          light: '#9F84D4',
         },
         aws: {
-          blue: '#0972D3',
+          blue: '#8B5CF6', // violet focus/info accent
           teal: '#00A1C9',
           green: '#037F0C',
           red: '#D91515',
         },
         surface: {
           DEFAULT: '#FFFFFF',
-          muted: '#F2F3F3',
-          border: '#D5DBDB',
+          muted: '#F5F2FA', // lavender-tinted muted surface
+          border: '#E1D9F0', // lavender-tinted border
         },
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'Amazon Ember', 'system-ui', 'sans-serif'],
+        heading: ['var(--font-heading)', 'var(--font-sans)', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        card: '0 1px 4px rgba(0, 7, 22, 0.10)',
-        raised: '0 4px 16px rgba(0, 7, 22, 0.14)',
+        card: '0 1px 4px rgba(27, 14, 51, 0.10)',
+        raised: '0 4px 16px rgba(27, 14, 51, 0.14)',
+        glow: '0 8px 24px rgba(123, 94, 167, 0.35)',
       },
       keyframes: {
         'fade-up': {

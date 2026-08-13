@@ -5,7 +5,7 @@ export const metadata = { title: 'Sign in' }
 
 export default function LoginPage({ searchParams }: { searchParams: { next?: string } }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-squid px-4 py-12">
+    <div className="glow-field flex min-h-screen flex-col items-center justify-center bg-squid px-4 py-12">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-white">
           <AwsMark className="h-10 w-auto" />

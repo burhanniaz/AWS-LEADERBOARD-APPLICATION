@@ -12,7 +12,7 @@ export async function SiteHeader() {
   const session = await readSession()
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-squid text-white">
+    <header className="glow-field sticky top-0 z-40 border-b border-white/10 bg-squid text-white">
       <div className="container-page flex h-16 items-center justify-between gap-4">
         <BrandLock />
 
@@ -28,7 +28,7 @@ export async function SiteHeader() {
           ))}
           <Link
             href={session ? '/admin' : '/login'}
-            className="ml-2 rounded-md bg-smile px-3 py-2 font-semibold text-squid transition-colors hover:bg-smile-light"
+            className="ml-2 rounded-md bg-smile px-3 py-2 font-semibold text-white transition-colors hover:bg-smile-light"
           >
             {session ? 'Admin' : 'Sign in'}
           </Link>

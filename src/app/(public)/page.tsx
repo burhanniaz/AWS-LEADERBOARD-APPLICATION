@@ -78,7 +78,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
         <p className="text-sm font-semibold uppercase tracking-widest text-smile-dark">
           AWS UET Taxila
         </p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-squid sm:text-4xl">
+        <h1 className="mt-2 font-heading text-3xl font-bold tracking-tight text-squid sm:text-4xl">
           Builder Leaderboard
         </h1>
    
