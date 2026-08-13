@@ -5,14 +5,23 @@ export const loginSchema = z.object({
   password: z.string().min(8),
 })
 
+export const DEPARTMENTS = [
+  { value: 'COMPUTER_SCIENCE', label: 'Computer Science' },
+  { value: 'SOFTWARE_ENGINEERING', label: 'Software Engineering' },
+  { value: 'COMPUTER_ENGINEERING', label: 'Computer Engineering' },
+  { value: 'TELECOM_ENGINEERING', label: 'Telecom Engineering' },
+] as const
+
 export const studentSchema = z.object({
   fullName: z.string().min(2).max(120),
   email: z.string().email(),
+  whatsappNumber: z.string().max(30).optional().or(z.literal('')),
   rollNumber: z.string().max(60).optional().or(z.literal('')),
-  institution: z.string().max(160).optional().or(z.literal('')),
-  avatarUrl: z.string().url().optional().or(z.literal('')),
+  department: z
+    .enum(['COMPUTER_SCIENCE', 'SOFTWARE_ENGINEERING', 'COMPUTER_ENGINEERING', 'TELECOM_ENGINEERING'])
+    .optional()
+    .or(z.literal('')),
   bio: z.string().max(1000).optional().or(z.literal('')),
-  githubUrl: z.string().url().optional().or(z.literal('')),
   linkedinUrl: z.string().url().optional().or(z.literal('')),
   status: z.enum(['ACTIVE', 'INACTIVE', 'ALUMNI']).default('ACTIVE'),
   roleId: z.string().min(1).optional().or(z.literal('')),

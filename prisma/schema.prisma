@@ -18,6 +18,13 @@ enum StudentStatus {
   ALUMNI
 }
 
+enum Department {
+  COMPUTER_SCIENCE
+  SOFTWARE_ENGINEERING
+  COMPUTER_ENGINEERING
+  TELECOM_ENGINEERING
+}
+
 model AdminUser {
   id           String    @id @default(cuid())
   email        String    @unique
@@ -68,19 +75,18 @@ model Role {
 }
 
 model Student {
-  id          String        @id @default(cuid())
-  fullName    String
-  email       String        @unique
-  rollNumber  String?
-  institution String?
-  avatarUrl   String?
-  bio         String?
-  githubUrl   String?
-  linkedinUrl String?
-  status      StudentStatus @default(ACTIVE)
-  joinedAt    DateTime      @default(now())
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id              String        @id @default(cuid())
+  fullName        String
+  email           String        @unique
+  whatsappNumber  String?
+  rollNumber      String?
+  department      Department?
+  bio             String?
+  linkedinUrl     String?
+  status          StudentStatus @default(ACTIVE)
+  joinedAt        DateTime      @default(now())
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   evaluations     Evaluation[]
   roleAssignments RoleAssignment[]

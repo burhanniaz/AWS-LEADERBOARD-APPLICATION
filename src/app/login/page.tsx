@@ -1,0 +1,28 @@
+import { LoginForm } from '@/components/LoginForm'
+import { AwsMark } from '@/components/Brand'
+
+export const metadata = { title: 'Sign in' }
+
+export default function LoginPage({ searchParams }: { searchParams: { next?: string } }) {
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-squid px-4 py-12">
+      <div className="w-full max-w-sm">
+        <div className="mb-8 flex flex-col items-center text-white">
+          <AwsMark className="h-10 w-auto" />
+          <h1 className="mt-4 text-xl font-bold">Cloud Club Admin</h1>
+          <p className="mt-1 text-center text-sm text-white/60">
+            Sign in to manage builders and record evaluations.
+          </p>
+        </div>
+
+        <div className="card card-pad">
+          <LoginForm next={searchParams.next} />
+        </div>
+
+        <p className="mt-6 text-center text-xs text-white/40">
+          Only programme organisers and mentors have accounts.
+        </p>
+      </div>
+    </div>
+  )
+}

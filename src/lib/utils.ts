@@ -32,3 +32,15 @@ export function formatDate(value: Date | string) {
 export function formatNumber(value: number, digits = 1) {
   return Number.isInteger(value) ? String(value) : value.toFixed(digits)
 }
+
+const DEPARTMENT_LABELS: Record<string, string> = {
+  COMPUTER_SCIENCE: 'Computer Science',
+  SOFTWARE_ENGINEERING: 'Software Engineering',
+  COMPUTER_ENGINEERING: 'Computer Engineering',
+  TELECOM_ENGINEERING: 'Telecom Engineering',
+}
+
+export function departmentLabel(value: string | null | undefined) {
+  if (!value) return null
+  return DEPARTMENT_LABELS[value] ?? value
+}
