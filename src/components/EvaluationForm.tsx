@@ -72,7 +72,7 @@ export function EvaluationForm({
           >
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
-                {category.name} (×{category.weight})
+                {category.name}
               </option>
             ))}
           </select>
@@ -127,7 +127,7 @@ export function EvaluationForm({
 
         <div>
           <label className="label" htmlFor="cycleId">
-            Cycle *
+            Session *
           </label>
           <select
             id="cycleId"

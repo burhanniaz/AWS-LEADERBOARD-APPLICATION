@@ -178,12 +178,12 @@ export function CycleForm({ values = {} }: { values?: CycleValues }) {
       {values.id ? <input type="hidden" name="id" value={values.id} /> : null}
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <label className="label">Name</label>
+          <label className="label">Session name</label>
           <input
             name="name"
             required
             className="input"
-            placeholder="Cohort 2027"
+            placeholder="Session 2027"
             defaultValue={values.name ?? ''}
           />
         </div>
@@ -213,10 +213,10 @@ export function CycleForm({ values = {} }: { values?: CycleValues }) {
       </div>
       <label className="flex items-center gap-2 text-sm text-squid/80">
         <input type="checkbox" name="isActive" defaultChecked={values.isActive ?? false} />
-        Make this the active cycle
+        Make this the active session
       </label>
       <Feedback state={state} />
-      <SubmitButton className="btn-secondary">{values.id ? 'Save' : 'Add cycle'}</SubmitButton>
+      <SubmitButton className="btn-secondary">{values.id ? 'Save' : 'Add session'}</SubmitButton>
     </form>
   )
 }

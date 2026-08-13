@@ -1,5 +1,6 @@
 import { csvResponse, toCsv } from '@/lib/csv'
 import { getActiveCycle, getLeaderboard } from '@/lib/leaderboard'
+import { departmentLabel } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,12 +12,12 @@ export async function GET(request: Request) {
   const rows = await getLeaderboard({ cycleId })
 
   const csv = toCsv(
-    ['Rank', 'Name', 'Email', 'Institution', 'Role', 'Points', 'Quality %', 'Evaluations'],
+    ['Rank', 'Name', 'Email', 'Department', 'Role', 'Points', 'Quality %', 'Evaluations'],
     rows.map((row) => [
       row.rank,
       row.fullName,
       row.email,
-      row.institution,
+      departmentLabel(row.department),
       row.roleName,
       row.totalPoints,
       row.quality,

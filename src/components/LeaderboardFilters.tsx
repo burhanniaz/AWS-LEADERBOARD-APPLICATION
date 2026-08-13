@@ -36,7 +36,7 @@ export function LeaderboardFilters({
           <input
             id="filter-search"
             className="input"
-            placeholder="Name, email or institution"
+            placeholder="Name, email or roll number"
             defaultValue={searchParams.get('q') ?? ''}
             onChange={(event) => update('q', event.target.value)}
           />

@@ -4,7 +4,7 @@ import { Avatar } from '@/components/Avatar'
 import { ScoreBar } from '@/components/ScoreBar'
 import { StatCard } from '@/components/StatCard'
 import { getStudentProfile, summariseProfile } from '@/lib/students'
-import { formatDate, formatNumber } from '@/lib/utils'
+import { departmentLabel, formatDate, formatNumber } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,11 +23,11 @@ export default async function StudentPage({ params }: { params: { id: string } }
       </Link>
 
       <header className="card card-pad mt-4 flex flex-col gap-5 sm:flex-row sm:items-center">
-        <Avatar name={profile.fullName} src={profile.avatarUrl} size="xl" />
+        <Avatar name={profile.fullName} size="xl" />
         <div className="min-w-0 flex-1">
           <h1 className="text-2xl font-bold text-squid sm:text-3xl">{profile.fullName}</h1>
           <p className="mt-1 text-sm text-squid/60">
-            {profile.institution ?? profile.email}
+            {departmentLabel(profile.department) ?? profile.email}
             {profile.rollNumber ? ` · ${profile.rollNumber}` : ''}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -49,14 +49,14 @@ export default async function StudentPage({ params }: { params: { id: string } }
           </div>
           {profile.bio ? <p className="mt-3 text-sm text-squid/70">{profile.bio}</p> : null}
           <div className="mt-3 flex gap-3 text-sm">
-            {profile.githubUrl ? (
+            {profile.whatsappNumber ? (
               <a
-                href={profile.githubUrl}
+                href={`https://wa.me/${profile.whatsappNumber.replace(/[^0-9]/g, '')}`}
                 target="_blank"
                 rel="noreferrer noopener"
                 className="text-aws-blue hover:underline"
               >
-                GitHub
+                WhatsApp
               </a>
             ) : null}
             {profile.linkedinUrl ? (

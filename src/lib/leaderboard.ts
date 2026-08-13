@@ -17,8 +17,7 @@ export type LeaderboardRow = {
   studentId: string
   fullName: string
   email: string
-  avatarUrl: string | null
-  institution: string | null
+  department: string | null
   roleName: string | null
   roleColor: string | null
   totalPoints: number
@@ -79,7 +78,7 @@ export async function getLeaderboard(filters: LeaderboardFilters): Promise<Leade
             OR: [
               { fullName: { contains: filters.search, mode: 'insensitive' as const } },
               { email: { contains: filters.search, mode: 'insensitive' as const } },
-              { institution: { contains: filters.search, mode: 'insensitive' as const } },
+              { rollNumber: { contains: filters.search, mode: 'insensitive' as const } },
             ],
           }
         : {}),
@@ -151,8 +150,7 @@ export async function getLeaderboard(filters: LeaderboardFilters): Promise<Leade
       studentId: student.id,
       fullName: student.fullName,
       email: student.email,
-      avatarUrl: student.avatarUrl,
-      institution: student.institution,
+      department: student.department,
       roleName: assignment?.role.name ?? null,
       roleColor: assignment?.role.color ?? null,
       totalPoints: Math.round(totalPoints * 10) / 10,

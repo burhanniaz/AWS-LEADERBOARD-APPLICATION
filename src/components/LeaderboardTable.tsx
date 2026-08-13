@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Avatar } from '@/components/Avatar'
 import { RankBadge } from '@/components/RankBadge'
 import type { LeaderboardRow } from '@/lib/leaderboard'
-import { formatNumber } from '@/lib/utils'
+import { departmentLabel, formatNumber } from '@/lib/utils'
 
 export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
   if (rows.length === 0) {
@@ -57,11 +57,11 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
                     href={`/students/${row.studentId}`}
                     className="flex items-center gap-3 hover:underline"
                   >
-                    <Avatar name={row.fullName} src={row.avatarUrl} size="sm" />
+                    <Avatar name={row.fullName} size="sm" />
                     <span>
                       <span className="block font-semibold text-squid">{row.fullName}</span>
                       <span className="block text-xs text-squid/50">
-                        {row.institution ?? row.email}
+                        {departmentLabel(row.department) ?? row.email}
                       </span>
                     </span>
                   </Link>
@@ -111,7 +111,7 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
           <li key={row.studentId}>
             <Link href={`/students/${row.studentId}`} className="flex items-center gap-3 p-4">
               <RankBadge rank={row.rank} />
-              <Avatar name={row.fullName} src={row.avatarUrl} size="md" />
+              <Avatar name={row.fullName} size="md" />
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold text-squid">{row.fullName}</p>
                 <p className="truncate text-xs text-squid/50">

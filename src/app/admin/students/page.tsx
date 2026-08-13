@@ -71,7 +71,7 @@ export default async function AdminStudentsPage({
                   <tr key={student.id} className="border-b border-surface-border/70 last:border-0">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <Avatar name={student.fullName} src={student.avatarUrl} size="sm" />
+                        <Avatar name={student.fullName} size="sm" />
                         <div className="min-w-0">
                           <p className="font-semibold text-squid">{student.fullName}</p>
                           <p className="truncate text-xs text-squid/50">{student.email}</p>

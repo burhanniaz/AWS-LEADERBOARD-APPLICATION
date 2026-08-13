@@ -3,6 +3,7 @@
 import { useFormState } from 'react-dom'
 import { saveStudentAction, type ActionState } from '@/lib/actions'
 import { SubmitButton } from '@/components/SubmitButton'
+import { DEPARTMENTS } from '@/lib/validation'
 
 type Option = { id: string; name: string }
 
@@ -10,11 +11,10 @@ export type StudentFormValues = {
   id?: string
   fullName?: string
   email?: string
+  whatsappNumber?: string | null
   rollNumber?: string | null
-  institution?: string | null
-  avatarUrl?: string | null
+  department?: string | null
   bio?: string | null
-  githubUrl?: string | null
   linkedinUrl?: string | null
   status?: 'ACTIVE' | 'INACTIVE' | 'ALUMNI'
   roleId?: string
@@ -52,6 +52,18 @@ export function StudentForm({
           />
         </div>
         <div>
+          <label className="label" htmlFor="rollNumber">
+            Roll / student number
+          </label>
+          <input
+            id="rollNumber"
+            name="rollNumber"
+            className="input"
+            defaultValue={values.rollNumber ?? ''}
+          />
+        </div>
+
+        <div>
           <label className="label" htmlFor="email">
             Email *
           </label>
@@ -65,27 +77,56 @@ export function StudentForm({
           />
         </div>
         <div>
-          <label className="label" htmlFor="rollNumber">
-            Roll / student number
+          <label className="label" htmlFor="whatsappNumber">
+            WhatsApp number
           </label>
           <input
-            id="rollNumber"
-            name="rollNumber"
+            id="whatsappNumber"
+            name="whatsappNumber"
+            type="tel"
             className="input"
-            defaultValue={values.rollNumber ?? ''}
+            placeholder="+92 3xx xxxxxxx"
+            defaultValue={values.whatsappNumber ?? ''}
           />
+        </div>
+
+        <div>
+          <label className="label" htmlFor="cycleId">
+            Session
+          </label>
+          <select id="cycleId" name="cycleId" className="input" defaultValue={values.cycleId ?? ''}>
+            <option value="">Select session</option>
+            {cycles.map((cycle) => (
+              <option key={cycle.id} value={cycle.id}>
+                {cycle.name}
+              </option>
+            ))}
+          </select>
+          {cycles.length === 0 ? (
+            <p className="mt-1 text-xs text-squid/50">
+              No sessions yet — add one under Settings.
+            </p>
+          ) : null}
         </div>
         <div>
-          <label className="label" htmlFor="institution">
-            Institution
+          <label className="label" htmlFor="department">
+            Department
           </label>
-          <input
-            id="institution"
-            name="institution"
+          <select
+            id="department"
+            name="department"
             className="input"
-            defaultValue={values.institution ?? ''}
-          />
+            defaultValue={values.department ?? ''}
+          >
+            <option value="">Select department</option>
+            {DEPARTMENTS.map((dept) => (
+              <option key={dept.value} value={dept.value}>
+                {dept.label}
+              </option>
+            ))}
+          </select>
         </div>
+
         <div>
           <label className="label" htmlFor="roleId">
             Role
@@ -100,19 +141,6 @@ export function StudentForm({
           </select>
         </div>
         <div>
-          <label className="label" htmlFor="cycleId">
-            Cycle for that role
-          </label>
-          <select id="cycleId" name="cycleId" className="input" defaultValue={values.cycleId ?? ''}>
-            <option value="">Select cycle</option>
-            {cycles.map((cycle) => (
-              <option key={cycle.id} value={cycle.id}>
-                {cycle.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
           <label className="label" htmlFor="status">
             Status
           </label>
@@ -122,31 +150,8 @@ export function StudentForm({
             <option value="INACTIVE">Inactive (hidden from board)</option>
           </select>
         </div>
-        <div>
-          <label className="label" htmlFor="avatarUrl">
-            Avatar URL
-          </label>
-          <input
-            id="avatarUrl"
-            name="avatarUrl"
-            type="url"
-            className="input"
-            defaultValue={values.avatarUrl ?? ''}
-          />
-        </div>
-        <div>
-          <label className="label" htmlFor="githubUrl">
-            GitHub URL
-          </label>
-          <input
-            id="githubUrl"
-            name="githubUrl"
-            type="url"
-            className="input"
-            defaultValue={values.githubUrl ?? ''}
-          />
-        </div>
-        <div>
+
+        <div className="sm:col-span-2">
           <label className="label" htmlFor="linkedinUrl">
             LinkedIn URL
           </label>

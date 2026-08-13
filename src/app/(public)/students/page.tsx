@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Avatar } from '@/components/Avatar'
 import { SetupNotice } from '@/components/SetupNotice'
 import { prisma } from '@/lib/prisma'
-import { formatDate } from '@/lib/utils'
+import { departmentLabel, formatDate } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Builders' }
@@ -14,7 +14,7 @@ async function Directory({ query }: { query?: string }) {
           OR: [
             { fullName: { contains: query, mode: 'insensitive' } },
             { email: { contains: query, mode: 'insensitive' } },
-            { institution: { contains: query, mode: 'insensitive' } },
+            { rollNumber: { contains: query, mode: 'insensitive' } },
           ],
         }
       : undefined,
@@ -43,11 +43,11 @@ async function Directory({ query }: { query?: string }) {
               href={`/students/${student.id}`}
               className="card card-pad flex h-full items-start gap-4 transition-shadow hover:shadow-raised"
             >
-              <Avatar name={student.fullName} src={student.avatarUrl} size="lg" />
+              <Avatar name={student.fullName} size="lg" />
               <div className="min-w-0">
                 <p className="truncate font-semibold text-squid">{student.fullName}</p>
                 <p className="truncate text-xs text-squid/50">
-                  {student.institution ?? student.email}
+                  {departmentLabel(student.department) ?? student.email}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {role ? (

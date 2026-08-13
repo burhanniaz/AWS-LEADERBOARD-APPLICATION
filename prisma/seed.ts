@@ -4,12 +4,12 @@ import bcrypt from 'bcryptjs'
 const prisma = new PrismaClient()
 
 const ROLES = [
-  { name: 'Captain', slug: 'captain', rank: 10, color: '#FF9900', description: 'Leads the chapter and owns overall direction.' },
-  { name: 'Co-Captain', slug: 'co-captain', rank: 20, color: '#EC7211', description: 'Supports the captain and deputises when needed.' },
-  { name: 'Team Lead', slug: 'team-lead', rank: 30, color: '#0972D3', description: 'Owns a track (cloud, web, AI/ML, community).' },
-  { name: 'Mentor', slug: 'mentor', rank: 40, color: '#00A1C9', description: 'Guides and evaluates junior members.' },
+  { name: 'Logistics', slug: 'captain', rank: 10, color: '#FF9900', description: 'Leads the chapter and owns overall direction.' },
+  { name: 'HR', slug: 'co-captain', rank: 20, color: '#EC7211', description: 'Supports the captain and deputises when needed.' },
+  { name: 'Event Management', slug: 'team-lead', rank: 30, color: '#0972D3', description: 'Owns a track (cloud, web, AI/ML, community).' },
+  { name: 'Skills & Training', slug: 'mentor', rank: 40, color: '#00A1C9', description: 'Guides and evaluates junior members.' },
   { name: 'Core Member', slug: 'core-member', rank: 50, color: '#037F0C', description: 'Consistently delivers on assigned work.' },
-  { name: 'Member', slug: 'member', rank: 60, color: '#5F6B7A', description: 'Active participant in the builder group.' },
+  { name: 'Operational', slug: 'member', rank: 60, color: '#5F6B7A', description: 'Active participant in the builder group.' },
 ]
 
 const CATEGORIES = [
@@ -32,9 +32,9 @@ function slugify(value: string) {
 }
 
 async function main() {
-  const email = process.env.SEED_ADMIN_EMAIL ?? 'admin@example.com'
-  const password = process.env.SEED_ADMIN_PASSWORD ?? 'change-this-password'
-  const name = process.env.SEED_ADMIN_NAME ?? 'Program Lead'
+  const email = process.env.SEED_ADMIN_EMAIL ?? 'aws@gmail.com'
+  const password = process.env.SEED_ADMIN_PASSWORD ?? 'aws@1234'
+  const name = process.env.SEED_ADMIN_NAME ?? 'Zakwan Mustafa'
 
   const admin = await prisma.adminUser.upsert({
     where: { email },

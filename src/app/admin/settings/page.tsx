@@ -75,7 +75,7 @@ export default async function AdminSettingsPage() {
         </section>
 
         <section className="card card-pad">
-          <h2 className="text-lg font-bold text-squid">Cycles</h2>
+          <h2 className="text-lg font-bold text-squid">Sessions</h2>
           <ul className="mt-4 space-y-2 text-sm">
             {cycles.map((cycle) => (
               <li key={cycle.id} className="rounded-md bg-surface-muted px-3 py-2">
