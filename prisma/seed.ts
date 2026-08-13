@@ -1,15 +1,16 @@
-import { PrismaClient } from '@prisma/client'
+import { randomUUID } from 'crypto'
 import bcrypt from 'bcryptjs'
+import postgres from 'postgres'
 
-const prisma = new PrismaClient()
+const sql = postgres(process.env.DATABASE_URL as string, { prepare: false })
 
 const ROLES = [
-  { name: 'Logistics', slug: 'captain', rank: 10, color: '#FF9900', description: 'Leads the chapter and owns overall direction.' },
-  { name: 'HR', slug: 'co-captain', rank: 20, color: '#EC7211', description: 'Supports the captain and deputises when needed.' },
-  { name: 'Event Management', slug: 'team-lead', rank: 30, color: '#0972D3', description: 'Owns a track (cloud, web, AI/ML, community).' },
-  { name: 'Skills & Training', slug: 'mentor', rank: 40, color: '#00A1C9', description: 'Guides and evaluates junior members.' },
-  { name: 'Core Member', slug: 'core-member', rank: 50, color: '#037F0C', description: 'Consistently delivers on assigned work.' },
-  { name: 'Operational', slug: 'member', rank: 60, color: '#5F6B7A', description: 'Active participant in the builder group.' },
+  { name: 'Logistics', slug: 'captain', rank: 100, color: '#FF9900', description: 'Leads the chapter and owns overall direction.' },
+  { name: 'HR', slug: 'co-captain', rank: 100, color: '#EC7211', description: 'Supports the captain and deputises when needed.' },
+  { name: 'Event Management', slug: 'team-lead', rank: 100, color: '#0972D3', description: 'Owns a track (cloud, web, AI/ML, community).' },
+  { name: 'Skills & Training', slug: 'mentor', rank: 100, color: '#00A1C9', description: 'Guides and evaluates junior members.' },
+  { name: 'Core Member', slug: 'core-member', rank: 100, color: '#037F0C', description: 'Consistently delivers on assigned work.' },
+  { name: 'Operational', slug: 'member', rank: 100, color: '#5F6B7A', description: 'Active participant in the builder group.' },
 ]
 
 const CATEGORIES = [
@@ -36,49 +37,49 @@ async function main() {
   const password = process.env.SEED_ADMIN_PASSWORD ?? 'aws@1234'
   const name = process.env.SEED_ADMIN_NAME ?? 'Zakwan Mustafa'
 
-  const admin = await prisma.adminUser.upsert({
-    where: { email },
-    update: {},
-    create: {
-      email,
-      name,
-      role: 'OWNER',
-      passwordHash: await bcrypt.hash(password, 12),
-    },
-  })
+  const [admin] = await sql`
+    INSERT INTO "AdminUser" (id, email, name, role, "passwordHash", "isActive", "createdAt", "updatedAt")
+    VALUES (${randomUUID()}, ${email}, ${name}, 'OWNER', ${await bcrypt.hash(password, 12)}, true, now(), now())
+    ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email
+    RETURNING email
+  `
   console.log(`Admin ready: ${admin.email}`)
 
   for (const role of ROLES) {
-    await prisma.role.upsert({ where: { slug: role.slug }, update: {}, create: role })
+    await sql`
+      INSERT INTO "Role" (id, name, slug, description, color, rank, "createdAt", "updatedAt")
+      VALUES (${randomUUID()}, ${role.name}, ${role.slug}, ${role.description}, ${role.color}, ${role.rank}, now(), now())
+      ON CONFLICT (slug) DO NOTHING
+    `
   }
   console.log(`Roles ready: ${ROLES.length}`)
 
   for (const category of CATEGORIES) {
-    await prisma.category.upsert({ where: { slug: category.slug }, update: {}, create: category })
+    await sql`
+      INSERT INTO "Category" (id, name, slug, description, weight, "maxScore", "order", color, icon, "isActive", "createdAt", "updatedAt")
+      VALUES (${randomUUID()}, ${category.name}, ${category.slug}, ${category.description}, ${category.weight}, ${category.maxScore}, ${category.order}, ${category.color}, ${category.icon}, true, now(), now())
+      ON CONFLICT (slug) DO NOTHING
+    `
   }
   console.log(`Categories ready: ${CATEGORIES.length}`)
 
   for (const skillName of SKILLS) {
-    await prisma.skill.upsert({
-      where: { slug: slugify(skillName) },
-      update: {},
-      create: { name: skillName, slug: slugify(skillName) },
-    })
+    const slug = slugify(skillName)
+    await sql`
+      INSERT INTO "Skill" (id, name, slug, "createdAt")
+      VALUES (${randomUUID()}, ${skillName}, ${slug}, now())
+      ON CONFLICT (slug) DO NOTHING
+    `
   }
   console.log(`Skills ready: ${SKILLS.length}`)
 
   const year = new Date().getFullYear()
-  const cycle = await prisma.cycle.upsert({
-    where: { slug: `cohort-${year}` },
-    update: {},
-    create: {
-      name: `Cohort ${year}`,
-      slug: `cohort-${year}`,
-      startDate: new Date(`${year}-01-01`),
-      isActive: true,
-      notes: 'Auto-created starting cycle.',
-    },
-  })
+  const [cycle] = await sql`
+    INSERT INTO "Cycle" (id, name, slug, "startDate", "isActive", notes, "createdAt", "updatedAt")
+    VALUES (${randomUUID()}, ${`Cohort ${year}`}, ${`cohort-${year}`}, ${new Date(`${year}-01-01`)}, true, 'Auto-created starting cycle.', now(), now())
+    ON CONFLICT (slug) DO UPDATE SET slug = EXCLUDED.slug
+    RETURNING name
+  `
   console.log(`Cycle ready: ${cycle.name}`)
 }
 
@@ -88,5 +89,5 @@ main()
     process.exit(1)
   })
   .finally(async () => {
-    await prisma.$disconnect()
+    await sql.end()
   })

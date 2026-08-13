@@ -1,29 +1,13 @@
 import Link from 'next/link'
 import { Avatar } from '@/components/Avatar'
 import { SetupNotice } from '@/components/SetupNotice'
-import { prisma } from '@/lib/prisma'
+import { getStudentDirectory } from '@/lib/students'
 import { departmentLabel, formatDate } from '@/lib/utils'
 
-export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Builders' }
 
 async function Directory({ query }: { query?: string }) {
-  const students = await prisma.student.findMany({
-    where: query
-      ? {
-          OR: [
-            { fullName: { contains: query, mode: 'insensitive' } },
-            { email: { contains: query, mode: 'insensitive' } },
-            { rollNumber: { contains: query, mode: 'insensitive' } },
-          ],
-        }
-      : undefined,
-    include: {
-      roleAssignments: { include: { role: true }, orderBy: { startedAt: 'desc' }, take: 1 },
-      _count: { select: { evaluations: true } },
-    },
-    orderBy: { fullName: 'asc' },
-  })
+  const students = await getStudentDirectory(query)
 
   if (students.length === 0) {
     return (

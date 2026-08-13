@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { CategoryForm, CycleForm, RoleForm } from '@/components/SettingsForms'
-import { prisma } from '@/lib/prisma'
+import { sql } from '@/lib/db'
+import type { Category, Cycle, Role } from '@/lib/db-types'
 import { formatDate } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
@@ -16,9 +17,9 @@ export default async function AdminSettingsPage({
   searchParams: { editCategory?: string; editRole?: string; editCycle?: string }
 }) {
   const [categories, roles, cycles] = await Promise.all([
-    prisma.category.findMany({ orderBy: { order: 'asc' } }),
-    prisma.role.findMany({ orderBy: { rank: 'asc' } }),
-    prisma.cycle.findMany({ orderBy: { startDate: 'desc' } }),
+    sql<Category[]>`SELECT * FROM "Category" ORDER BY "order" ASC`,
+    sql<Role[]>`SELECT * FROM "Role" ORDER BY rank ASC`,
+    sql<Cycle[]>`SELECT * FROM "Cycle" ORDER BY "startDate" DESC`,
   ])
 
   const editingCategory = categories.find((item) => item.id === searchParams.editCategory)
@@ -98,7 +99,6 @@ export default async function AdminSettingsPage({
                   aria-hidden
                 />
                 <span className="flex-1 font-medium text-squid">{role.name}</span>
-                <span className="text-xs text-squid/50">rank {role.rank}</span>
                 <Link
                   href={`/admin/settings?editRole=${role.id}#roles-form`}
                   className="text-xs font-semibold text-aws-blue hover:underline"

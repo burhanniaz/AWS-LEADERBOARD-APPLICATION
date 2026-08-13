@@ -1,9 +1,10 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import bcrypt from 'bcryptjs'
-import { prisma } from '@/lib/prisma'
+import { newId, sql } from '@/lib/db'
+import type { AdminUser, Category, Cycle, Evaluation, Role, Student } from '@/lib/db-types'
 import {
   clearSessionCookie,
   createSessionToken,
@@ -36,7 +37,10 @@ function optional(value: FormDataEntryValue | null) {
 }
 
 async function log(actorId: string | null, action: string, entity: string, entityId: string | null, summary: string) {
-  await prisma.activityLog.create({ data: { actorId, action, entity, entityId, summary } })
+  await sql`
+    INSERT INTO "ActivityLog" (id, "actorId", action, entity, "entityId", summary, "createdAt")
+    VALUES (${newId()}, ${actorId}, ${action}, ${entity}, ${entityId}, ${summary}, now())
+  `
 }
 
 export async function loginAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
@@ -47,7 +51,7 @@ export async function loginAction(_prev: ActionState, formData: FormData): Promi
       password: formData.get('password'),
     })
 
-    const user = await prisma.adminUser.findUnique({ where: { email: parsed.email } })
+    const [user] = await sql<AdminUser[]>`SELECT * FROM "AdminUser" WHERE email = ${parsed.email}`
     if (!user || !user.isActive || !(await bcrypt.compare(parsed.password, user.passwordHash))) {
       return { error: 'Incorrect email or password.' }
     }
@@ -83,33 +87,41 @@ export async function saveStudentAction(
     const id = optional(formData.get('id'))
     const parsed = studentSchema.parse(Object.fromEntries(formData))
 
-    const data = {
-      fullName: parsed.fullName,
-      email: parsed.email,
-      whatsappNumber: optional(formData.get('whatsappNumber')),
-      rollNumber: optional(formData.get('rollNumber')),
-      department: parsed.department ? parsed.department : null,
-      bio: optional(formData.get('bio')),
-      linkedinUrl: optional(formData.get('linkedinUrl')),
-      status: parsed.status,
-    }
+    const whatsappNumber = optional(formData.get('whatsappNumber'))
+    const rollNumber = optional(formData.get('rollNumber'))
+    const department = parsed.department ? parsed.department : null
+    const bio = optional(formData.get('bio'))
+    const linkedinUrl = optional(formData.get('linkedinUrl'))
 
-    const student = id
-      ? await prisma.student.update({ where: { id }, data })
-      : await prisma.student.create({ data })
+    const [student] = id
+      ? await sql<Student[]>`
+          UPDATE "Student" SET
+            "fullName" = ${parsed.fullName},
+            email = ${parsed.email},
+            "whatsappNumber" = ${whatsappNumber},
+            "rollNumber" = ${rollNumber},
+            department = ${department},
+            bio = ${bio},
+            "linkedinUrl" = ${linkedinUrl},
+            status = ${parsed.status},
+            "updatedAt" = now()
+          WHERE id = ${id}
+          RETURNING *
+        `
+      : await sql<Student[]>`
+          INSERT INTO "Student"
+            (id, "fullName", email, "whatsappNumber", "rollNumber", department, bio, "linkedinUrl", status, "joinedAt", "createdAt", "updatedAt")
+          VALUES
+            (${newId()}, ${parsed.fullName}, ${parsed.email}, ${whatsappNumber}, ${rollNumber}, ${department}, ${bio}, ${linkedinUrl}, ${parsed.status}, now(), now(), now())
+          RETURNING *
+        `
 
     if (parsed.roleId && parsed.cycleId) {
-      await prisma.roleAssignment.upsert({
-        where: {
-          studentId_roleId_cycleId: {
-            studentId: student.id,
-            roleId: parsed.roleId,
-            cycleId: parsed.cycleId,
-          },
-        },
-        update: {},
-        create: { studentId: student.id, roleId: parsed.roleId, cycleId: parsed.cycleId },
-      })
+      await sql`
+        INSERT INTO "RoleAssignment" (id, "studentId", "roleId", "cycleId", "startedAt", "createdAt")
+        VALUES (${newId()}, ${student.id}, ${parsed.roleId}, ${parsed.cycleId}, now(), now())
+        ON CONFLICT ("studentId", "roleId", "cycleId") DO NOTHING
+      `
     }
 
     await log(
@@ -125,16 +137,18 @@ export async function saveStudentAction(
 
   revalidatePath('/admin/students')
   revalidatePath('/')
+  revalidateTag('board-data')
   redirect('/admin/students')
 }
 
 export async function deleteStudentAction(formData: FormData) {
   const session = await requireAdmin()
   const id = String(formData.get('id'))
-  const student = await prisma.student.delete({ where: { id } })
+  const [student] = await sql<Student[]>`DELETE FROM "Student" WHERE id = ${id} RETURNING *`
   await log(session.sub, 'DELETE', 'Student', id, `${session.name} removed ${student.fullName}`)
   revalidatePath('/admin/students')
   revalidatePath('/')
+  revalidateTag('board-data')
 }
 
 export async function saveEvaluationAction(
@@ -149,30 +163,29 @@ export async function saveEvaluationAction(
       return { error: 'Score cannot be higher than the maximum score.' }
     }
 
-    const category = await prisma.category.findUniqueOrThrow({ where: { id: parsed.categoryId } })
+    const [category] = await sql<Category[]>`SELECT * FROM "Category" WHERE id = ${parsed.categoryId}`
+    if (!category) throw new Error('Metric not found.')
 
-    const evaluation = await prisma.evaluation.create({
-      data: {
-        studentId: parsed.studentId,
-        categoryId: parsed.categoryId,
-        cycleId: parsed.cycleId,
-        evaluatorId: session.sub,
-        title: `${category.name} evaluation`,
-        score: parsed.score,
-        maxScore: parsed.maxScore,
-        reason: parsed.reason,
-        evidenceUrl: optional(formData.get('evidenceUrl')),
-        occurredAt: parsed.occurredAt ? new Date(parsed.occurredAt) : new Date(),
-      },
-      include: { student: true },
-    })
+    const title = `${category.name} evaluation`
+    const evidenceUrl = optional(formData.get('evidenceUrl'))
+    const occurredAt = parsed.occurredAt ? new Date(parsed.occurredAt) : new Date()
+
+    const [evaluation] = await sql<Evaluation[]>`
+      INSERT INTO "Evaluation"
+        (id, "studentId", "categoryId", "cycleId", "evaluatorId", title, score, "maxScore", reason, "evidenceUrl", "occurredAt", "createdAt", "updatedAt")
+      VALUES
+        (${newId()}, ${parsed.studentId}, ${parsed.categoryId}, ${parsed.cycleId}, ${session.sub}, ${title}, ${parsed.score}, ${parsed.maxScore}, ${parsed.reason}, ${evidenceUrl}, ${occurredAt}, now(), now())
+      RETURNING *
+    `
+
+    const [student] = await sql<Student[]>`SELECT "fullName" FROM "Student" WHERE id = ${parsed.studentId}`
 
     await log(
       session.sub,
       'CREATE',
       'Evaluation',
       evaluation.id,
-      `${session.name} scored ${evaluation.student.fullName}: ${evaluation.title} (${evaluation.score}/${evaluation.maxScore})`,
+      `${session.name} scored ${student.fullName}: ${evaluation.title} (${evaluation.score}/${evaluation.maxScore})`,
     )
   } catch (error) {
     return { error: firstError(error) }
@@ -180,16 +193,18 @@ export async function saveEvaluationAction(
 
   revalidatePath('/admin/evaluations')
   revalidatePath('/')
+  revalidateTag('board-data')
   return { success: 'Evaluation recorded.' }
 }
 
 export async function deleteEvaluationAction(formData: FormData) {
   const session = await requireAdmin()
   const id = String(formData.get('id'))
-  const evaluation = await prisma.evaluation.delete({ where: { id } })
+  const [evaluation] = await sql<Evaluation[]>`DELETE FROM "Evaluation" WHERE id = ${id} RETURNING *`
   await log(session.sub, 'DELETE', 'Evaluation', id, `${session.name} deleted "${evaluation.title}"`)
   revalidatePath('/admin/evaluations')
   revalidatePath('/')
+  revalidateTag('board-data')
 }
 
 export async function saveCategoryAction(
@@ -204,20 +219,29 @@ export async function saveCategoryAction(
       isActive: formData.get('isActive') === 'on',
     })
 
-    const data = {
-      name: parsed.name,
-      slug: slugify(parsed.name),
-      description: optional(formData.get('description')),
-      weight: parsed.weight,
-      maxScore: parsed.maxScore,
-      color: parsed.color,
-      order: parsed.order,
-      isActive: parsed.isActive,
-    }
+    const description = optional(formData.get('description'))
+    const slug = slugify(parsed.name)
 
-    const category = id
-      ? await prisma.category.update({ where: { id }, data })
-      : await prisma.category.create({ data })
+    const [category] = id
+      ? await sql<Category[]>`
+          UPDATE "Category" SET
+            name = ${parsed.name},
+            slug = ${slug},
+            description = ${description},
+            weight = ${parsed.weight},
+            "maxScore" = ${parsed.maxScore},
+            color = ${parsed.color},
+            "order" = ${parsed.order},
+            "isActive" = ${parsed.isActive},
+            "updatedAt" = now()
+          WHERE id = ${id}
+          RETURNING *
+        `
+      : await sql<Category[]>`
+          INSERT INTO "Category" (id, name, slug, description, weight, "maxScore", color, icon, "order", "isActive", "createdAt", "updatedAt")
+          VALUES (${newId()}, ${parsed.name}, ${slug}, ${description}, ${parsed.weight}, ${parsed.maxScore}, ${parsed.color}, 'star', ${parsed.order}, ${parsed.isActive}, now(), now())
+          RETURNING *
+        `
 
     await log(session.sub, id ? 'UPDATE' : 'CREATE', 'Category', category.id, `${session.name} saved metric ${category.name}`)
   } catch (error) {
@@ -226,6 +250,7 @@ export async function saveCategoryAction(
 
   revalidatePath('/admin/settings')
   revalidatePath('/')
+  revalidateTag('board-data')
   return { success: 'Metric saved.' }
 }
 
@@ -235,17 +260,26 @@ export async function saveRoleAction(_prev: ActionState, formData: FormData): Pr
     const id = optional(formData.get('id'))
     const parsed = roleSchema.parse(Object.fromEntries(formData))
 
-    const data = {
-      name: parsed.name,
-      slug: slugify(parsed.name),
-      description: optional(formData.get('description')),
-      color: parsed.color,
-      rank: parsed.rank,
-    }
+    const description = optional(formData.get('description'))
+    const slug = slugify(parsed.name)
 
-    const role = id
-      ? await prisma.role.update({ where: { id }, data })
-      : await prisma.role.create({ data })
+    const [role] = id
+      ? await sql<Role[]>`
+          UPDATE "Role" SET
+            name = ${parsed.name},
+            slug = ${slug},
+            description = ${description},
+            color = ${parsed.color},
+            rank = ${parsed.rank},
+            "updatedAt" = now()
+          WHERE id = ${id}
+          RETURNING *
+        `
+      : await sql<Role[]>`
+          INSERT INTO "Role" (id, name, slug, description, color, rank, "createdAt", "updatedAt")
+          VALUES (${newId()}, ${parsed.name}, ${slug}, ${description}, ${parsed.color}, ${parsed.rank}, now(), now())
+          RETURNING *
+        `
 
     await log(session.sub, id ? 'UPDATE' : 'CREATE', 'Role', role.id, `${session.name} saved role ${role.name}`)
   } catch (error) {
@@ -253,6 +287,7 @@ export async function saveRoleAction(_prev: ActionState, formData: FormData): Pr
   }
 
   revalidatePath('/admin/settings')
+  revalidateTag('board-data')
   return { success: 'Role saved.' }
 }
 
@@ -265,25 +300,33 @@ export async function saveCycleAction(_prev: ActionState, formData: FormData): P
       isActive: formData.get('isActive') === 'on',
     })
 
-    const data = {
-      name: parsed.name,
-      slug: slugify(parsed.name),
-      startDate: new Date(parsed.startDate),
-      endDate: parsed.endDate ? new Date(parsed.endDate) : null,
-      notes: optional(formData.get('notes')),
-      isActive: parsed.isActive,
-    }
+    const notes = optional(formData.get('notes'))
+    const slug = slugify(parsed.name)
+    const startDate = new Date(parsed.startDate)
+    const endDate = parsed.endDate ? new Date(parsed.endDate) : null
 
-    const cycle = id
-      ? await prisma.cycle.update({ where: { id }, data })
-      : await prisma.cycle.create({ data })
+    const [cycle] = id
+      ? await sql<Cycle[]>`
+          UPDATE "Cycle" SET
+            name = ${parsed.name},
+            slug = ${slug},
+            "startDate" = ${startDate},
+            "endDate" = ${endDate},
+            notes = ${notes},
+            "isActive" = ${parsed.isActive},
+            "updatedAt" = now()
+          WHERE id = ${id}
+          RETURNING *
+        `
+      : await sql<Cycle[]>`
+          INSERT INTO "Cycle" (id, name, slug, "startDate", "endDate", "isActive", notes, "createdAt", "updatedAt")
+          VALUES (${newId()}, ${parsed.name}, ${slug}, ${startDate}, ${endDate}, ${parsed.isActive}, ${notes}, now(), now())
+          RETURNING *
+        `
 
     // Only one cycle can be active at a time, so the board always has one default view.
     if (cycle.isActive) {
-      await prisma.cycle.updateMany({
-        where: { id: { not: cycle.id } },
-        data: { isActive: false },
-      })
+      await sql`UPDATE "Cycle" SET "isActive" = false WHERE id != ${cycle.id}`
     }
 
     await log(session.sub, id ? 'UPDATE' : 'CREATE', 'Cycle', cycle.id, `${session.name} saved cycle ${cycle.name}`)
@@ -293,5 +336,6 @@ export async function saveCycleAction(_prev: ActionState, formData: FormData): P
 
   revalidatePath('/admin/settings')
   revalidatePath('/')
+  revalidateTag('board-data')
   return { success: 'Cycle saved.' }
 }

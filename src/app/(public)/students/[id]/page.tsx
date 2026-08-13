@@ -6,8 +6,6 @@ import { StatCard } from '@/components/StatCard'
 import { getStudentProfile, summariseProfile } from '@/lib/students'
 import { departmentLabel, formatDate, formatNumber } from '@/lib/utils'
 
-export const dynamic = 'force-dynamic'
-
 export default async function StudentPage({ params }: { params: { id: string } }) {
   const profile = await getStudentProfile(params.id)
   if (!profile) notFound()

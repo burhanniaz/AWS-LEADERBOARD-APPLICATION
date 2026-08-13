@@ -1,25 +1,28 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { StudentForm } from '@/components/StudentForm'
-import { prisma } from '@/lib/prisma'
+import { sql } from '@/lib/db'
+import type { Student } from '@/lib/db-types'
 import { getCycles, getRoles } from '@/lib/leaderboard'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Edit builder' }
 
 export default async function EditStudentPage({ params }: { params: { id: string } }) {
-  const [student, roles, cycles] = await Promise.all([
-    prisma.student.findUnique({
-      where: { id: params.id },
-      include: { roleAssignments: { orderBy: { startedAt: 'desc' }, take: 1 } },
-    }),
+  const [[student], roles, cycles] = await Promise.all([
+    sql<Student[]>`SELECT * FROM "Student" WHERE id = ${params.id}`,
     getRoles(),
     getCycles(),
   ])
 
   if (!student) notFound()
 
-  const assignment = student.roleAssignments[0]
+  const [assignment] = await sql<{ roleId: string; cycleId: string }[]>`
+    SELECT "roleId", "cycleId" FROM "RoleAssignment"
+    WHERE "studentId" = ${student.id}
+    ORDER BY "startedAt" DESC
+    LIMIT 1
+  `
 
   return (
     <div className="container-page max-w-4xl py-8">

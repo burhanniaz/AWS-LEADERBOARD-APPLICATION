@@ -4,7 +4,6 @@ import { StatCard } from '@/components/StatCard'
 import { getActiveCycle, getCategories, getCycles, getLeaderboard } from '@/lib/leaderboard'
 import { formatNumber } from '@/lib/utils'
 
-export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Insights' }
 
 async function Insights({ cycleId }: { cycleId?: string }) {
@@ -20,28 +19,30 @@ async function Insights({ cycleId }: { cycleId?: string }) {
 
   const categories = await getCategories()
   const overall = await getLeaderboard({ cycleId: cycle.id })
-  const perCategory = await Promise.all(
-    categories.map(async (category) => ({
-      category,
-      rows: (await getLeaderboard({ cycleId: cycle.id, categorySlug: category.slug }))
-        .filter((row) => row.evaluationCount > 0)
-        .slice(0, 5),
-    })),
-  )
+  const scoredOverall = overall.filter((row) => row.evaluationCount > 0)
+  const perCategory = categories.map((category) => ({
+    category,
+    rows: scoredOverall
+      .flatMap((row) => {
+        const entry = row.breakdown.find((bucket) => bucket.categoryId === category.id)
+        return entry ? [{ studentId: row.studentId, fullName: row.fullName, totalPoints: entry.points }] : []
+      })
+      .sort((a, b) => b.totalPoints - a.totalPoints)
+      .slice(0, 5),
+  }))
 
-  const scored = overall.filter((row) => row.evaluationCount > 0)
   const participation = overall.length
-    ? Math.round((scored.length / overall.length) * 100)
+    ? Math.round((scoredOverall.length / overall.length) * 100)
     : 0
-  const median = scored.length
-    ? scored[Math.floor(scored.length / 2)].totalPoints
+  const median = scoredOverall.length
+    ? scoredOverall[Math.floor(scoredOverall.length / 2)].totalPoints
     : 0
 
   return (
     <>
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Cycle" value={cycle.name} />
-        <StatCard label="Builders scored" value={`${scored.length}/${overall.length}`} />
+        <StatCard label="Builders scored" value={`${scoredOverall.length}/${overall.length}`} />
         <StatCard label="Participation" value={`${participation}%`} hint="Have at least one evaluation" />
         <StatCard label="Median points" value={formatNumber(median)} />
       </section>

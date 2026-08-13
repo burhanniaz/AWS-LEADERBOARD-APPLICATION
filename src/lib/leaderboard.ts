@@ -1,4 +1,8 @@
-import { prisma } from '@/lib/prisma'
+import { unstable_cache } from 'next/cache'
+import { sql } from '@/lib/db'
+import type { Category, Cycle, Evaluation, Role, Student } from '@/lib/db-types'
+
+const CACHE_TAG = 'board-data'
 
 export type CategoryBreakdown = {
   categoryId: string
@@ -34,27 +38,35 @@ export type LeaderboardFilters = {
   search?: string
 }
 
-export async function getCycles() {
-  return prisma.cycle.findMany({ orderBy: [{ startDate: 'desc' }] })
-}
+export const getCycles = unstable_cache(
+  async () => sql<Cycle[]>`SELECT * FROM "Cycle" ORDER BY "startDate" DESC`,
+  ['cycles'],
+  { tags: [CACHE_TAG] },
+)
 
-export async function getActiveCycle() {
-  return (
-    (await prisma.cycle.findFirst({ where: { isActive: true } })) ??
-    (await prisma.cycle.findFirst({ orderBy: { startDate: 'desc' } }))
-  )
-}
+export const getActiveCycle = unstable_cache(
+  async () => {
+    const [active] = await sql<Cycle[]>`SELECT * FROM "Cycle" WHERE "isActive" = true LIMIT 1`
+    if (active) return active
+    const [latest] = await sql<Cycle[]>`SELECT * FROM "Cycle" ORDER BY "startDate" DESC LIMIT 1`
+    return latest ?? null
+  },
+  ['active-cycle'],
+  { tags: [CACHE_TAG] },
+)
 
-export async function getRoles() {
-  return prisma.role.findMany({ orderBy: [{ rank: 'asc' }, { name: 'asc' }] })
-}
+export const getRoles = unstable_cache(
+  async () => sql<Role[]>`SELECT * FROM "Role" ORDER BY rank ASC, name ASC`,
+  ['roles'],
+  { tags: [CACHE_TAG] },
+)
 
-export async function getCategories() {
-  return prisma.category.findMany({
-    where: { isActive: true },
-    orderBy: [{ order: 'asc' }, { name: 'asc' }],
-  })
-}
+export const getCategories = unstable_cache(
+  async () =>
+    sql<Category[]>`SELECT * FROM "Category" WHERE "isActive" = true ORDER BY "order" ASC, name ASC`,
+  ['categories'],
+  { tags: [CACHE_TAG] },
+)
 
 /// Points reward both volume and quality: a student who does more good work
 /// out-scores one who did a single perfect thing, which is the behaviour the
@@ -63,56 +75,77 @@ function pointsFor(score: number, weight: number) {
   return score * weight
 }
 
-export async function getLeaderboard(filters: LeaderboardFilters): Promise<LeaderboardRow[]> {
+type StudentWithRole = Student & {
+  roleId: string | null
+  roleName: string | null
+  roleColor: string | null
+}
+
+type EvaluationWithCategory = Evaluation & {
+  categoryName: string
+  categorySlug: string
+  categoryColor: string
+  categoryWeight: number
+}
+
+async function fetchLeaderboard(filters: LeaderboardFilters): Promise<LeaderboardRow[]> {
   const cycle = filters.cycleId
-    ? await prisma.cycle.findUnique({ where: { id: filters.cycleId } })
+    ? (await sql<Cycle[]>`SELECT * FROM "Cycle" WHERE id = ${filters.cycleId}`)[0] ?? null
     : await getActiveCycle()
 
   if (!cycle) return []
 
-  const students = await prisma.student.findMany({
-    where: {
-      status: { not: 'INACTIVE' },
-      ...(filters.search
-        ? {
-            OR: [
-              { fullName: { contains: filters.search, mode: 'insensitive' as const } },
-              { email: { contains: filters.search, mode: 'insensitive' as const } },
-              { rollNumber: { contains: filters.search, mode: 'insensitive' as const } },
-            ],
-          }
-        : {}),
-      ...(filters.roleSlug
-        ? { roleAssignments: { some: { cycleId: cycle.id, role: { slug: filters.roleSlug } } } }
-        : {}),
-    },
-    include: {
-      roleAssignments: {
-        where: { cycleId: cycle.id },
-        include: { role: true },
-        orderBy: { role: { rank: 'asc' } },
-        take: 1,
-      },
-      evaluations: {
-        where: {
-          cycleId: cycle.id,
-          ...(filters.categorySlug ? { category: { slug: filters.categorySlug } } : {}),
-        },
-        include: { category: true },
-      },
-    },
-  })
+  const like = filters.search ? `%${filters.search}%` : null
+
+  const students = await sql<StudentWithRole[]>`
+    SELECT s.*, ranked.role_id as "roleId", ranked.role_name as "roleName", ranked.role_color as "roleColor"
+    FROM "Student" s
+    LEFT JOIN LATERAL (
+      SELECT r.id as role_id, r.name as role_name, r.color as role_color
+      FROM "RoleAssignment" ra
+      JOIN "Role" r ON r.id = ra."roleId"
+      WHERE ra."studentId" = s.id AND ra."cycleId" = ${cycle.id}
+      ORDER BY r.rank ASC
+      LIMIT 1
+    ) ranked ON true
+    WHERE s.status != 'INACTIVE'
+      ${like ? sql`AND (s."fullName" ILIKE ${like} OR s.email ILIKE ${like} OR s."rollNumber" ILIKE ${like})` : sql``}
+      ${
+        filters.roleSlug
+          ? sql`AND EXISTS (
+              SELECT 1 FROM "RoleAssignment" ra2
+              JOIN "Role" role2 ON role2.id = ra2."roleId"
+              WHERE ra2."studentId" = s.id AND ra2."cycleId" = ${cycle.id} AND role2.slug = ${filters.roleSlug}
+            )`
+          : sql``
+      }
+  `
+
+  const evaluations = await sql<EvaluationWithCategory[]>`
+    SELECT e.*, c.name as "categoryName", c.slug as "categorySlug", c.color as "categoryColor", c.weight as "categoryWeight"
+    FROM "Evaluation" e
+    JOIN "Category" c ON c.id = e."categoryId"
+    WHERE e."cycleId" = ${cycle.id}
+    ${filters.categorySlug ? sql`AND c.slug = ${filters.categorySlug}` : sql``}
+  `
+
+  const evaluationsByStudent = new Map<string, EvaluationWithCategory[]>()
+  for (const evaluation of evaluations) {
+    const list = evaluationsByStudent.get(evaluation.studentId) ?? []
+    list.push(evaluation)
+    evaluationsByStudent.set(evaluation.studentId, list)
+  }
 
   const rows = students.map((student) => {
+    const studentEvaluations = evaluationsByStudent.get(student.id) ?? []
     const buckets = new Map<string, CategoryBreakdown>()
     let totalPoints = 0
     let rawSum = 0
     let maxSum = 0
     let lastEvaluatedAt: Date | null = null
 
-    for (const evaluation of student.evaluations) {
-      const category = evaluation.category
-      const points = pointsFor(evaluation.score, category.weight)
+    for (const evaluation of studentEvaluations) {
+      const points = pointsFor(evaluation.score, evaluation.categoryWeight)
       totalPoints += points
       rawSum += evaluation.score
       maxSum += evaluation.maxScore
@@ -121,7 +154,7 @@ export async function getLeaderboard(filters: LeaderboardFilters): Promise<Leade
         lastEvaluatedAt = evaluation.occurredAt
       }
 
-      const existing = buckets.get(category.id)
+      const existing = buckets.get(evaluation.categoryId)
       if (existing) {
         existing.points += points
         existing.rawScore += evaluation.score
@@ -129,11 +162,11 @@ export async function getLeaderboard(filters: LeaderboardFilters): Promise<Leade
         existing.count += 1
         existing.quality = existing.maxScore ? (existing.rawScore / existing.maxScore) * 100 : 0
       } else {
-        buckets.set(category.id, {
-          categoryId: category.id,
-          name: category.name,
-          slug: category.slug,
-          color: category.color,
+        buckets.set(evaluation.categoryId, {
+          categoryId: evaluation.categoryId,
+          name: evaluation.categoryName,
+          slug: evaluation.categorySlug,
+          color: evaluation.categoryColor,
           points,
           rawScore: evaluation.score,
           maxScore: evaluation.maxScore,
@@ -143,19 +176,17 @@ export async function getLeaderboard(filters: LeaderboardFilters): Promise<Leade
       }
     }
 
-    const assignment = student.roleAssignments[0]
-
     return {
       rank: 0,
       studentId: student.id,
       fullName: student.fullName,
       email: student.email,
       department: student.department,
-      roleName: assignment?.role.name ?? null,
-      roleColor: assignment?.role.color ?? null,
+      roleName: student.roleName,
+      roleColor: student.roleColor,
       totalPoints: Math.round(totalPoints * 10) / 10,
       quality: maxSum ? Math.round((rawSum / maxSum) * 1000) / 10 : 0,
-      evaluationCount: student.evaluations.length,
+      evaluationCount: studentEvaluations.length,
       lastEvaluatedAt,
       breakdown: [...buckets.values()].sort((a, b) => b.points - a.points),
     }
@@ -184,18 +215,19 @@ export async function getLeaderboard(filters: LeaderboardFilters): Promise<Leade
   return rows
 }
 
-export async function getCycleStats(cycleId: string) {
-  const [studentCount, evaluationCount, aggregate] = await Promise.all([
-    prisma.student.count({ where: { status: { not: 'INACTIVE' } } }),
-    prisma.evaluation.count({ where: { cycleId } }),
-    prisma.evaluation.aggregate({
-      where: { cycleId },
-      _sum: { score: true, maxScore: true },
-    }),
-  ])
+export const getLeaderboard = unstable_cache(fetchLeaderboard, ['leaderboard'], {
+  tags: [CACHE_TAG],
+})
 
-  const rawSum = aggregate._sum.score ?? 0
-  const maxSum = aggregate._sum.maxScore ?? 0
+async function fetchCycleStats(cycleId: string) {
+  const [[{ count: studentCount }], [{ count: evaluationCount }], [{ rawSum, maxSum }]] = await Promise.all([
+    sql<{ count: number }[]>`SELECT COUNT(*)::int as count FROM "Student" WHERE status != 'INACTIVE'`,
+    sql<{ count: number }[]>`SELECT COUNT(*)::int as count FROM "Evaluation" WHERE "cycleId" = ${cycleId}`,
+    sql<{ rawSum: number; maxSum: number }[]>`
+      SELECT COALESCE(SUM(score), 0)::float as "rawSum", COALESCE(SUM("maxScore"), 0)::float as "maxSum"
+      FROM "Evaluation" WHERE "cycleId" = ${cycleId}
+    `,
+  ])
 
   return {
     studentCount,
@@ -203,3 +235,7 @@ export async function getCycleStats(cycleId: string) {
     averageQuality: maxSum ? Math.round((rawSum / maxSum) * 1000) / 10 : 0,
   }
 }
+
+export const getCycleStats = unstable_cache(fetchCycleStats, ['cycle-stats'], {
+  tags: [CACHE_TAG],
+})

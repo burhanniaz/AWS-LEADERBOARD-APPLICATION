@@ -1,5 +1,5 @@
 import { EvaluationForm } from '@/components/EvaluationForm'
-import { prisma } from '@/lib/prisma'
+import { sql } from '@/lib/db'
 import { getCategories, getCycles } from '@/lib/leaderboard'
 
 export const dynamic = 'force-dynamic'
@@ -11,11 +11,9 @@ export default async function AdminEvaluationsPage({
   searchParams: { student?: string }
 }) {
   const [students, categories, cycles] = await Promise.all([
-    prisma.student.findMany({
-      where: { status: { not: 'INACTIVE' } },
-      select: { id: true, fullName: true },
-      orderBy: { fullName: 'asc' },
-    }),
+    sql<{ id: string; fullName: string }[]>`
+      SELECT id, "fullName" FROM "Student" WHERE status != 'INACTIVE' ORDER BY "fullName" ASC
+    `,
     getCategories(),
     getCycles(),
   ])

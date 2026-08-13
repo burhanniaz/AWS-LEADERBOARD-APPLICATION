@@ -12,8 +12,6 @@ import {
   getRoles,
 } from '@/lib/leaderboard'
 
-export const dynamic = 'force-dynamic'
-
 type SearchParams = { cycle?: string; role?: string; category?: string; q?: string }
 
 async function Board({ searchParams }: { searchParams: SearchParams }) {

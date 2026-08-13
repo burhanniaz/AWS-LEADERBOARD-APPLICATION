@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { StatCard } from '@/components/StatCard'
 import { SetupNotice } from '@/components/SetupNotice'
-import { prisma } from '@/lib/prisma'
+import { sql } from '@/lib/db'
 import { getActiveCycle } from '@/lib/leaderboard'
 
 export const dynamic = 'force-dynamic'
@@ -9,14 +9,18 @@ export const metadata = { title: 'Admin overview' }
 
 async function Overview() {
   const cycle = await getActiveCycle()
-  const [students, evaluations, unscored] = await Promise.all([
-    prisma.student.count({ where: { status: 'ACTIVE' } }),
-    cycle ? prisma.evaluation.count({ where: { cycleId: cycle.id } }) : 0,
+  const [[{ count: students }], [{ count: evaluations }], [{ count: unscored }]] = await Promise.all([
+    sql<{ count: number }[]>`SELECT COUNT(*)::int as count FROM "Student" WHERE status = 'ACTIVE'`,
     cycle
-      ? prisma.student.count({
-          where: { status: 'ACTIVE', evaluations: { none: { cycleId: cycle.id } } },
-        })
-      : 0,
+      ? sql<{ count: number }[]>`SELECT COUNT(*)::int as count FROM "Evaluation" WHERE "cycleId" = ${cycle.id}`
+      : Promise.resolve([{ count: 0 }]),
+    cycle
+      ? sql<{ count: number }[]>`
+          SELECT COUNT(*)::int as count FROM "Student" s
+          WHERE s.status = 'ACTIVE'
+            AND NOT EXISTS (SELECT 1 FROM "Evaluation" e WHERE e."studentId" = s.id AND e."cycleId" = ${cycle.id})
+        `
+      : Promise.resolve([{ count: 0 }]),
   ])
 
   return (

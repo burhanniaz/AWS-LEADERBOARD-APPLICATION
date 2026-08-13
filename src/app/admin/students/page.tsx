@@ -1,32 +1,42 @@
 import Link from 'next/link'
 import { Avatar } from '@/components/Avatar'
 import { deleteStudentAction } from '@/lib/actions'
-import { prisma } from '@/lib/prisma'
+import { sql } from '@/lib/db'
+import type { Student } from '@/lib/db-types'
 import { formatDate } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Manage builders' }
+
+type StudentRow = Student & {
+  roleName: string | null
+  evaluationCount: number
+}
 
 export default async function AdminStudentsPage({
   searchParams,
 }: {
   searchParams: { q?: string }
 }) {
-  const students = await prisma.student.findMany({
-    where: searchParams.q
-      ? {
-          OR: [
-            { fullName: { contains: searchParams.q, mode: 'insensitive' } },
-            { email: { contains: searchParams.q, mode: 'insensitive' } },
-          ],
-        }
-      : undefined,
-    include: {
-      roleAssignments: { include: { role: true }, orderBy: { startedAt: 'desc' }, take: 1 },
-      _count: { select: { evaluations: true } },
-    },
-    orderBy: { createdAt: 'desc' },
-  })
+  const like = searchParams.q ? `%${searchParams.q}%` : null
+
+  const students = await sql<StudentRow[]>`
+    SELECT s.*, ranked.role_name as "roleName", COALESCE(ev.count, 0)::int as "evaluationCount"
+    FROM "Student" s
+    LEFT JOIN LATERAL (
+      SELECT r.name as role_name
+      FROM "RoleAssignment" ra
+      JOIN "Role" r ON r.id = ra."roleId"
+      WHERE ra."studentId" = s.id
+      ORDER BY ra."startedAt" DESC
+      LIMIT 1
+    ) ranked ON true
+    LEFT JOIN (
+      SELECT "studentId", COUNT(*) as count FROM "Evaluation" GROUP BY "studentId"
+    ) ev ON ev."studentId" = s.id
+    ${like ? sql`WHERE (s."fullName" ILIKE ${like} OR s.email ILIKE ${like})` : sql``}
+    ORDER BY s."createdAt" DESC
+  `
 
   return (
     <div className="container-page py-8">
@@ -79,11 +89,11 @@ export default async function AdminStudentsPage({
                       </div>
                     </td>
                     <td className="px-4 py-3 text-squid/70">
-                      {student.roleAssignments[0]?.role.name ?? '—'}
+                      {student.roleName ?? '—'}
                     </td>
                     <td className="px-4 py-3 text-squid/70">{student.status}</td>
                     <td className="px-4 py-3 text-right tabular-nums text-squid/70">
-                      {student._count.evaluations}
+                      {student.evaluationCount}
                     </td>
                     <td className="px-4 py-3 text-squid/60">{formatDate(student.joinedAt)}</td>
                     <td className="px-4 py-3">
