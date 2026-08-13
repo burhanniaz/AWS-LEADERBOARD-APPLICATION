@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useActionState, useEffect, useRef, useState } from 'react'
 import { saveEvaluationAction, type ActionState } from '@/lib/actions'
 import { SubmitButton } from '@/components/SubmitButton'
 
@@ -22,7 +21,7 @@ export function EvaluationForm({
   cycles: Cycle[]
   defaultStudentId?: string
 }) {
-  const [state, formAction] = useFormState(saveEvaluationAction, initialState)
+  const [state, formAction] = useActionState(saveEvaluationAction, initialState)
   const formRef = useRef<HTMLFormElement>(null)
   const [maxScore, setMaxScore] = useState(categories[0]?.maxScore ?? 10)
 

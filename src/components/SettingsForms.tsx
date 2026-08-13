@@ -1,6 +1,6 @@
 'use client'
 
-import { useFormState } from 'react-dom'
+import { useActionState } from 'react'
 import {
   saveCategoryAction,
   saveCycleAction,
@@ -41,7 +41,7 @@ export type CategoryValues = {
 }
 
 export function CategoryForm({ values = {} }: { values?: CategoryValues }) {
-  const [state, formAction] = useFormState(saveCategoryAction, initialState)
+  const [state, formAction] = useActionState(saveCategoryAction, initialState)
 
   return (
     <form action={formAction} className="space-y-3">
@@ -119,7 +119,7 @@ export type RoleValues = {
 }
 
 export function RoleForm({ values = {} }: { values?: RoleValues }) {
-  const [state, formAction] = useFormState(saveRoleAction, initialState)
+  const [state, formAction] = useActionState(saveRoleAction, initialState)
 
   return (
     <form action={formAction} className="space-y-3">
@@ -171,7 +171,7 @@ export type CycleValues = {
 }
 
 export function CycleForm({ values = {} }: { values?: CycleValues }) {
-  const [state, formAction] = useFormState(saveCycleAction, initialState)
+  const [state, formAction] = useActionState(saveCycleAction, initialState)
 
   return (
     <form action={formAction} className="space-y-3">

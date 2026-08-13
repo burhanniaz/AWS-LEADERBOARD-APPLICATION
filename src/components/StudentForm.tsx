@@ -1,6 +1,6 @@
 'use client'
 
-import { useFormState } from 'react-dom'
+import { useActionState } from 'react'
 import { saveStudentAction, type ActionState } from '@/lib/actions'
 import { SubmitButton } from '@/components/SubmitButton'
 import { DEPARTMENTS } from '@/lib/validation'
@@ -32,7 +32,7 @@ export function StudentForm({
   cycles: Option[]
   values?: StudentFormValues
 }) {
-  const [state, formAction] = useFormState(saveStudentAction, initialState)
+  const [state, formAction] = useActionState(saveStudentAction, initialState)
 
   return (
     <form action={formAction} className="card card-pad space-y-5">

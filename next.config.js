@@ -20,6 +20,9 @@ if (!isDev) {
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Hides the dev-mode floating "N" indicator badge (dev-only, never shown
+  // in production builds regardless of this setting).
+  devIndicators: false,
   async headers() {
     return [
       {
