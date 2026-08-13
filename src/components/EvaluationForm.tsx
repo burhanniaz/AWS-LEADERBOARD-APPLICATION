@@ -33,17 +33,17 @@ export function EvaluationForm({
   const activeCycle = cycles.find((cycle) => cycle.isActive) ?? cycles[0]
 
   return (
-    <form ref={formRef} action={formAction} className="card card-pad space-y-5">
-      <div className="grid gap-4 sm:grid-cols-2">
+    <form ref={formRef} action={formAction} className="card space-y-6 p-6 sm:p-8">
+      <div className="grid gap-5 sm:grid-cols-2">
         <div>
-          <label className="label" htmlFor="studentId">
+          <label className="label text-sm" htmlFor="studentId">
             Builder *
           </label>
           <select
             id="studentId"
             name="studentId"
             required
-            className="input"
+            className="input py-3 text-base"
             defaultValue={defaultStudentId ?? ''}
           >
             <option value="">Select a builder</option>
@@ -56,14 +56,14 @@ export function EvaluationForm({
         </div>
 
         <div>
-          <label className="label" htmlFor="categoryId">
+          <label className="label text-sm" htmlFor="categoryId">
             Metric *
           </label>
           <select
             id="categoryId"
             name="categoryId"
             required
-            className="input"
+            className="input py-3 text-base"
             defaultValue={categories[0]?.id ?? ''}
             onChange={(event) => {
               const category = categories.find((item) => item.id === event.target.value)
@@ -78,21 +78,8 @@ export function EvaluationForm({
           </select>
         </div>
 
-        <div className="sm:col-span-2">
-          <label className="label" htmlFor="title">
-            What is being scored? *
-          </label>
-          <input
-            id="title"
-            name="title"
-            required
-            className="input"
-            placeholder="e.g. Delivered the Lambda hands-on workshop"
-          />
-        </div>
-
         <div>
-          <label className="label" htmlFor="score">
+          <label className="label text-sm" htmlFor="score">
             Score *
           </label>
           <input
@@ -103,13 +90,13 @@ export function EvaluationForm({
             min={0}
             max={maxScore}
             required
-            className="input"
+            className="input py-3 text-base"
             defaultValue={maxScore}
           />
         </div>
 
         <div>
-          <label className="label" htmlFor="maxScore">
+          <label className="label text-sm" htmlFor="maxScore">
             Out of *
           </label>
           <input
@@ -119,21 +106,21 @@ export function EvaluationForm({
             step="1"
             min={1}
             required
-            className="input"
+            className="input py-3 text-base"
             value={maxScore}
             onChange={(event) => setMaxScore(Number(event.target.value))}
           />
         </div>
 
         <div>
-          <label className="label" htmlFor="cycleId">
+          <label className="label text-sm" htmlFor="cycleId">
             Session *
           </label>
           <select
             id="cycleId"
             name="cycleId"
             required
-            className="input"
+            className="input py-3 text-base"
             defaultValue={activeCycle?.id ?? ''}
           >
             {cycles.map((cycle) => (
@@ -145,14 +132,14 @@ export function EvaluationForm({
         </div>
 
         <div>
-          <label className="label" htmlFor="occurredAt">
+          <label className="label text-sm" htmlFor="occurredAt">
             Date
           </label>
-          <input id="occurredAt" name="occurredAt" type="date" className="input" />
+          <input id="occurredAt" name="occurredAt" type="date" className="input py-3 text-base" />
         </div>
 
         <div className="sm:col-span-2">
-          <label className="label" htmlFor="reason">
+          <label className="label text-sm" htmlFor="reason">
             Reason for this score *
           </label>
           <textarea
@@ -161,20 +148,20 @@ export function EvaluationForm({
             rows={3}
             required
             minLength={10}
-            className="input"
+            className="input py-3 text-base"
             placeholder="Why this score? This is what makes the decision defensible later."
           />
         </div>
 
         <div className="sm:col-span-2">
-          <label className="label" htmlFor="evidenceUrl">
+          <label className="label text-sm" htmlFor="evidenceUrl">
             Evidence link
           </label>
           <input
             id="evidenceUrl"
             name="evidenceUrl"
             type="url"
-            className="input"
+            className="input py-3 text-base"
             placeholder="PR, repo, certificate or attendance sheet"
           />
         </div>
@@ -191,7 +178,9 @@ export function EvaluationForm({
         </p>
       ) : null}
 
-      <SubmitButton pendingLabel="Recording…">Record evaluation</SubmitButton>
+      <SubmitButton className="btn-primary w-full py-3 text-base" pendingLabel="Recording…">
+        Record evaluation
+      </SubmitButton>
     </form>
   )
 }

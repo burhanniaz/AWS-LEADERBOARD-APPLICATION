@@ -6,8 +6,8 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swa
 
 export const metadata: Metadata = {
   title: {
-    default: 'AWS Cloud Club Leaderboard',
-    template: '%s | AWS Cloud Club Leaderboard',
+    default: 'AWS UET Taxila Leaderboard',
+    template: '%s | AWS UET Taxila Leaderboard',
   },
   description:
     'Performance, evaluation and recognition tracking for the AWS Student Builder community.',

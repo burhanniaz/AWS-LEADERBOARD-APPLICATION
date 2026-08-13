@@ -149,13 +149,15 @@ export async function saveEvaluationAction(
       return { error: 'Score cannot be higher than the maximum score.' }
     }
 
+    const category = await prisma.category.findUniqueOrThrow({ where: { id: parsed.categoryId } })
+
     const evaluation = await prisma.evaluation.create({
       data: {
         studentId: parsed.studentId,
         categoryId: parsed.categoryId,
         cycleId: parsed.cycleId,
         evaluatorId: session.sub,
-        title: parsed.title,
+        title: `${category.name} evaluation`,
         score: parsed.score,
         maxScore: parsed.maxScore,
         reason: parsed.reason,

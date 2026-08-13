@@ -32,7 +32,6 @@ export const evaluationSchema = z.object({
   studentId: z.string().min(1),
   categoryId: z.string().min(1),
   cycleId: z.string().min(1),
-  title: z.string().min(3).max(160),
   score: z.coerce.number().min(0).max(1000),
   maxScore: z.coerce.number().min(1).max(1000),
   reason: z.string().min(10, 'Explain why this score was given (min 10 characters).').max(2000),

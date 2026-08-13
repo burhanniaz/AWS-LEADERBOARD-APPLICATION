@@ -9,7 +9,7 @@ export default function LoginPage({ searchParams }: { searchParams: { next?: str
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-white">
           <AwsMark className="h-10 w-auto" />
-          <h1 className="mt-4 text-xl font-bold">Cloud Club Admin</h1>
+          <h1 className="mt-4 text-xl font-bold">AWS UET Taxila Admin</h1>
           <p className="mt-1 text-center text-sm text-white/60">
             Sign in to manage builders and record evaluations.
           </p>

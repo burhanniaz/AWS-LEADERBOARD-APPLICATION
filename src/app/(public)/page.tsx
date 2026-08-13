@@ -76,15 +76,12 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
     <div className="container-page py-8 sm:py-10">
       <div className="mb-8 max-w-3xl">
         <p className="text-sm font-semibold uppercase tracking-widest text-smile-dark">
-          AWS Cloud Club
+          AWS UET Taxila
         </p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-squid sm:text-4xl">
           Builder Leaderboard
         </h1>
-        <p className="mt-3 text-balance text-squid/70">
-          Every score on this board is tied to a recorded evaluation with a written reason, an
-          evaluator and a date — so selection decisions can be justified, not remembered.
-        </p>
+   
       </div>
 
       <Suspense fallback={<div className="card card-pad">Loading board…</div>}>{content}</Suspense>
