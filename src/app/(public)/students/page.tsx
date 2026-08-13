@@ -58,11 +58,12 @@ async function Directory({ query }: { query?: string }) {
   )
 }
 
-export default async function StudentsPage({
-  searchParams,
-}: {
-  searchParams: { q?: string }
-}) {
+export default async function StudentsPage(
+  props: {
+    searchParams: Promise<{ q?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   let content: React.ReactNode
   try {
     content = await Directory({ query: searchParams.q })

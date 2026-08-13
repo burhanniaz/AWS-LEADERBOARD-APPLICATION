@@ -5,11 +5,12 @@ import { getCategories, getCycles } from '@/lib/leaderboard'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Evaluations' }
 
-export default async function AdminEvaluationsPage({
-  searchParams,
-}: {
-  searchParams: { student?: string }
-}) {
+export default async function AdminEvaluationsPage(
+  props: {
+    searchParams: Promise<{ student?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const [students, categories, cycles] = await Promise.all([
     sql<{ id: string; fullName: string }[]>`
       SELECT id, "fullName" FROM "Student" WHERE status != 'INACTIVE' ORDER BY "fullName" ASC

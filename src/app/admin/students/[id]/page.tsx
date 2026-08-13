@@ -8,7 +8,8 @@ import { getCycles, getRoles } from '@/lib/leaderboard'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Edit builder' }
 
-export default async function EditStudentPage({ params }: { params: { id: string } }) {
+export default async function EditStudentPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const [[student], roles, cycles] = await Promise.all([
     sql<Student[]>`SELECT * FROM "Student" WHERE id = ${params.id}`,
     getRoles(),

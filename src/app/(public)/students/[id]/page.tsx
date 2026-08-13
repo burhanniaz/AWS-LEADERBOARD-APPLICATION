@@ -6,7 +6,8 @@ import { StatCard } from '@/components/StatCard'
 import { getStudentProfile, summariseProfile } from '@/lib/students'
 import { departmentLabel, formatDate, formatNumber } from '@/lib/utils'
 
-export default async function StudentPage({ params }: { params: { id: string } }) {
+export default async function StudentPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const profile = await getStudentProfile(params.id)
   if (!profile) notFound()
 
@@ -175,5 +176,5 @@ export default async function StudentPage({ params }: { params: { id: string } }
         </aside>
       </div>
     </div>
-  )
+  );
 }

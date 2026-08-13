@@ -13,11 +13,12 @@ type StudentRow = Student & {
   evaluationCount: number
 }
 
-export default async function AdminStudentsPage({
-  searchParams,
-}: {
-  searchParams: { q?: string }
-}) {
+export default async function AdminStudentsPage(
+  props: {
+    searchParams: Promise<{ q?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const like = searchParams.q ? `%${searchParams.q}%` : null
 
   const students = await sql<StudentRow[]>`

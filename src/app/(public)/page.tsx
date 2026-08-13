@@ -62,7 +62,8 @@ async function Board({ searchParams }: { searchParams: SearchParams }) {
   )
 }
 
-export default async function HomePage({ searchParams }: { searchParams: SearchParams }) {
+export default async function HomePage(props: { searchParams: Promise<SearchParams> }) {
+  const searchParams = await props.searchParams;
   let content: React.ReactNode
   try {
     content = await Board({ searchParams })

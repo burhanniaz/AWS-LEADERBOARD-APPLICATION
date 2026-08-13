@@ -3,7 +3,8 @@ import { AwsMark } from '@/components/Brand'
 
 export const metadata = { title: 'Sign in' }
 
-export default function LoginPage({ searchParams }: { searchParams: { next?: string } }) {
+export default async function LoginPage(props: { searchParams: Promise<{ next?: string }> }) {
+  const searchParams = await props.searchParams;
   return (
     <div className="glow-field flex min-h-screen flex-col items-center justify-center bg-squid px-4 py-12">
       <div className="w-full max-w-sm">

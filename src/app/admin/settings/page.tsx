@@ -11,11 +11,12 @@ function isoDate(value: Date | null) {
   return value ? new Date(value).toISOString().slice(0, 10) : ''
 }
 
-export default async function AdminSettingsPage({
-  searchParams,
-}: {
-  searchParams: { editCategory?: string; editRole?: string; editCycle?: string }
-}) {
+export default async function AdminSettingsPage(
+  props: {
+    searchParams: Promise<{ editCategory?: string; editRole?: string; editCycle?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   const [categories, roles, cycles] = await Promise.all([
     sql<Category[]>`SELECT * FROM "Category" ORDER BY "order" ASC`,
     sql<Role[]>`SELECT * FROM "Role" ORDER BY rank ASC`,

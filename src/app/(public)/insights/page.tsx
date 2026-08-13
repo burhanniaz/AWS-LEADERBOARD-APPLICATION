@@ -108,11 +108,12 @@ async function Insights({ cycleId }: { cycleId?: string }) {
   )
 }
 
-export default async function InsightsPage({
-  searchParams,
-}: {
-  searchParams: { cycle?: string }
-}) {
+export default async function InsightsPage(
+  props: {
+    searchParams: Promise<{ cycle?: string }>
+  }
+) {
+  const searchParams = await props.searchParams;
   let content: React.ReactNode
   try {
     content = await Insights({ cycleId: searchParams.cycle })

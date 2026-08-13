@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import bcrypt from 'bcryptjs'
 import { newId, sql } from '@/lib/db'
@@ -74,7 +74,7 @@ export async function loginAction(_prev: ActionState, formData: FormData): Promi
 }
 
 export async function logoutAction() {
-  clearSessionCookie()
+  await clearSessionCookie()
   redirect('/login')
 }
 
@@ -137,7 +137,7 @@ export async function saveStudentAction(
 
   revalidatePath('/admin/students')
   revalidatePath('/')
-  revalidateTag('board-data')
+  updateTag('board-data')
   redirect('/admin/students')
 }
 
@@ -148,7 +148,7 @@ export async function deleteStudentAction(formData: FormData) {
   await log(session.sub, 'DELETE', 'Student', id, `${session.name} removed ${student.fullName}`)
   revalidatePath('/admin/students')
   revalidatePath('/')
-  revalidateTag('board-data')
+  updateTag('board-data')
 }
 
 export async function saveEvaluationAction(
@@ -193,7 +193,7 @@ export async function saveEvaluationAction(
 
   revalidatePath('/admin/evaluations')
   revalidatePath('/')
-  revalidateTag('board-data')
+  updateTag('board-data')
   return { success: 'Evaluation recorded.' }
 }
 
@@ -204,7 +204,7 @@ export async function deleteEvaluationAction(formData: FormData) {
   await log(session.sub, 'DELETE', 'Evaluation', id, `${session.name} deleted "${evaluation.title}"`)
   revalidatePath('/admin/evaluations')
   revalidatePath('/')
-  revalidateTag('board-data')
+  updateTag('board-data')
 }
 
 export async function saveCategoryAction(
@@ -250,7 +250,7 @@ export async function saveCategoryAction(
 
   revalidatePath('/admin/settings')
   revalidatePath('/')
-  revalidateTag('board-data')
+  updateTag('board-data')
   return { success: 'Metric saved.' }
 }
 
@@ -287,7 +287,7 @@ export async function saveRoleAction(_prev: ActionState, formData: FormData): Pr
   }
 
   revalidatePath('/admin/settings')
-  revalidateTag('board-data')
+  updateTag('board-data')
   return { success: 'Role saved.' }
 }
 
@@ -336,6 +336,6 @@ export async function saveCycleAction(_prev: ActionState, formData: FormData): P
 
   revalidatePath('/admin/settings')
   revalidatePath('/')
-  revalidateTag('board-data')
+  updateTag('board-data')
   return { success: 'Cycle saved.' }
 }
