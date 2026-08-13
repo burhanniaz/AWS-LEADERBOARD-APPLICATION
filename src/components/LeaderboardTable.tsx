@@ -1,0 +1,133 @@
+import Link from 'next/link'
+import { Avatar } from '@/components/Avatar'
+import { RankBadge } from '@/components/RankBadge'
+import type { LeaderboardRow } from '@/lib/leaderboard'
+import { formatNumber } from '@/lib/utils'
+
+export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
+  if (rows.length === 0) {
+    return (
+      <div className="card card-pad text-center">
+        <p className="text-sm font-semibold text-squid">No builders match these filters yet.</p>
+        <p className="mt-1 text-sm text-squid/60">
+          Add builders and record evaluations from the admin panel to populate the board.
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="card overflow-hidden">
+      {/* Desktop table */}
+      <div className="table-wrap hidden md:block">
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr className="border-b border-surface-border bg-surface-muted text-left">
+              <th scope="col" className="w-20 px-4 py-3 font-semibold text-squid/70">
+                Rank
+              </th>
+              <th scope="col" className="px-4 py-3 font-semibold text-squid/70">
+                Builder
+              </th>
+              <th scope="col" className="px-4 py-3 font-semibold text-squid/70">
+                Role
+              </th>
+              <th scope="col" className="px-4 py-3 font-semibold text-squid/70">
+                Breakdown
+              </th>
+              <th scope="col" className="px-4 py-3 text-right font-semibold text-squid/70">
+                Quality
+              </th>
+              <th scope="col" className="px-4 py-3 text-right font-semibold text-squid/70">
+                Points
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr
+                key={row.studentId}
+                className="border-b border-surface-border/70 last:border-0 hover:bg-surface-muted/60"
+              >
+                <td className="px-4 py-3">
+                  <RankBadge rank={row.rank} />
+                </td>
+                <td className="px-4 py-3">
+                  <Link
+                    href={`/students/${row.studentId}`}
+                    className="flex items-center gap-3 hover:underline"
+                  >
+                    <Avatar name={row.fullName} src={row.avatarUrl} size="sm" />
+                    <span>
+                      <span className="block font-semibold text-squid">{row.fullName}</span>
+                      <span className="block text-xs text-squid/50">
+                        {row.institution ?? row.email}
+                      </span>
+                    </span>
+                  </Link>
+                </td>
+                <td className="px-4 py-3">
+                  {row.roleName ? (
+                    <span
+                      className="badge"
+                      style={{
+                        backgroundColor: `${row.roleColor}1A`,
+                        color: row.roleColor ?? undefined,
+                      }}
+                    >
+                      {row.roleName}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-squid/40">Unassigned</span>
+                  )}
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex h-2 w-40 overflow-hidden rounded-full bg-surface-muted">
+                    {row.breakdown.map((bucket) => (
+                      <span
+                        key={bucket.categoryId}
+                        title={`${bucket.name}: ${formatNumber(bucket.points)} pts`}
+                        style={{
+                          backgroundColor: bucket.color,
+                          width: `${row.totalPoints ? (bucket.points / row.totalPoints) * 100 : 0}%`,
+                        }}
+                      />
+                    ))}
+                  </div>
+                </td>
+                <td className="px-4 py-3 text-right tabular-nums text-squid/70">{row.quality}%</td>
+                <td className="px-4 py-3 text-right text-base font-bold tabular-nums text-squid">
+                  {formatNumber(row.totalPoints)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile cards */}
+      <ul className="divide-y divide-surface-border md:hidden">
+        {rows.map((row) => (
+          <li key={row.studentId}>
+            <Link href={`/students/${row.studentId}`} className="flex items-center gap-3 p-4">
+              <RankBadge rank={row.rank} />
+              <Avatar name={row.fullName} src={row.avatarUrl} size="md" />
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-semibold text-squid">{row.fullName}</p>
+                <p className="truncate text-xs text-squid/50">
+                  {row.roleName ?? 'Unassigned'} · {row.evaluationCount} evaluations
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-lg font-bold tabular-nums text-squid">
+                  {formatNumber(row.totalPoints)}
+                </p>
+                <p className="text-xs text-squid/50">{row.quality}%</p>
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}

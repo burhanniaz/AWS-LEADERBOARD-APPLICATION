@@ -1,0 +1,131 @@
+import Link from 'next/link'
+import { SetupNotice } from '@/components/SetupNotice'
+import { StatCard } from '@/components/StatCard'
+import { getActiveCycle, getCategories, getCycles, getLeaderboard } from '@/lib/leaderboard'
+import { formatNumber } from '@/lib/utils'
+
+export const dynamic = 'force-dynamic'
+export const metadata = { title: 'Insights' }
+
+async function Insights({ cycleId }: { cycleId?: string }) {
+  const cycles = await getCycles()
+  const cycle = cycleId ? cycles.find((item) => item.id === cycleId) : await getActiveCycle()
+  if (!cycle) {
+    return (
+      <div className="card card-pad text-sm text-squid/60">
+        Create a cycle in the admin panel to see insights.
+      </div>
+    )
+  }
+
+  const categories = await getCategories()
+  const overall = await getLeaderboard({ cycleId: cycle.id })
+  const perCategory = await Promise.all(
+    categories.map(async (category) => ({
+      category,
+      rows: (await getLeaderboard({ cycleId: cycle.id, categorySlug: category.slug }))
+        .filter((row) => row.evaluationCount > 0)
+        .slice(0, 5),
+    })),
+  )
+
+  const scored = overall.filter((row) => row.evaluationCount > 0)
+  const participation = overall.length
+    ? Math.round((scored.length / overall.length) * 100)
+    : 0
+  const median = scored.length
+    ? scored[Math.floor(scored.length / 2)].totalPoints
+    : 0
+
+  return (
+    <>
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label="Cycle" value={cycle.name} />
+        <StatCard label="Builders scored" value={`${scored.length}/${overall.length}`} />
+        <StatCard label="Participation" value={`${participation}%`} hint="Have at least one evaluation" />
+        <StatCard label="Median points" value={formatNumber(median)} />
+      </section>
+
+      <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {perCategory.map(({ category, rows }) => (
+          <article key={category.id} className="card card-pad">
+            <div className="flex items-center gap-2">
+              <span
+                className="h-3 w-3 rounded-full"
+                style={{ backgroundColor: category.color }}
+                aria-hidden
+              />
+              <h2 className="font-bold text-squid">{category.name}</h2>
+              <span className="ml-auto text-xs text-squid/50">weight ×{category.weight}</span>
+            </div>
+            {category.description ? (
+              <p className="mt-1 text-xs text-squid/50">{category.description}</p>
+            ) : null}
+
+            {rows.length === 0 ? (
+              <p className="mt-4 text-sm text-squid/50">No scores in this metric yet.</p>
+            ) : (
+              <ol className="mt-4 space-y-2 text-sm">
+                {rows.map((row, index) => (
+                  <li key={row.studentId} className="flex items-center gap-3">
+                    <span className="w-4 text-xs font-bold tabular-nums text-squid/40">
+                      {index + 1}
+                    </span>
+                    <Link
+                      href={`/students/${row.studentId}`}
+                      className="min-w-0 flex-1 truncate font-medium text-squid hover:underline"
+                    >
+                      {row.fullName}
+                    </Link>
+                    <span className="tabular-nums font-semibold text-squid">
+                      {formatNumber(row.totalPoints)}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </article>
+        ))}
+      </section>
+
+      <section className="card card-pad mt-6">
+        <h2 className="text-lg font-bold text-squid">Export this cycle</h2>
+        <p className="mt-1 max-w-2xl text-sm text-squid/70">
+          Download the full record — every evaluation with its score, reason, evaluator and date.
+          This export is the raw material for next session&apos;s selection guidelines.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <a className="btn-secondary" href={`/api/export/leaderboard?cycleId=${cycle.id}`}>
+            Leaderboard CSV
+          </a>
+          <a className="btn-secondary" href={`/api/export/evaluations?cycleId=${cycle.id}`}>
+            Evaluations CSV
+          </a>
+        </div>
+      </section>
+    </>
+  )
+}
+
+export default async function InsightsPage({
+  searchParams,
+}: {
+  searchParams: { cycle?: string }
+}) {
+  let content: React.ReactNode
+  try {
+    content = await Insights({ cycleId: searchParams.cycle })
+  } catch (error) {
+    content = <SetupNotice detail={error instanceof Error ? error.message : undefined} />
+  }
+
+  return (
+    <div className="container-page py-8 sm:py-10">
+      <h1 className="text-3xl font-bold tracking-tight text-squid">Insights</h1>
+      <p className="mt-2 max-w-2xl text-squid/70">
+        Where the club is strong, where it is thin, and who leads each metric.
+      </p>
+      <div className="mt-6">{content}</div>
+    </div>
+  )
+}
