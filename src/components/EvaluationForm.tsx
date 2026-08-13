@@ -149,7 +149,7 @@ export function EvaluationForm({
             required
             minLength={10}
             className="input py-3 text-base"
-            placeholder="Why this score? This is what makes the decision defensible later."
+            placeholder=""
           />
         </div>
 
