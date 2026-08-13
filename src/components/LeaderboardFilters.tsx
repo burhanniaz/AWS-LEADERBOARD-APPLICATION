@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { useTransition } from 'react'
+import { useEffect, useRef, useTransition } from 'react'
 
 type Option = { value: string; label: string }
 
@@ -18,12 +18,26 @@ export function LeaderboardFilters({
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>()
+
+  useEffect(() => () => clearTimeout(debounceRef.current), [])
+
+  function navigate(params: URLSearchParams) {
+    startTransition(() => router.replace(`${pathname}?${params.toString()}`, { scroll: false }))
+  }
 
   function update(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString())
     if (value) params.set(key, value)
     else params.delete(key)
-    startTransition(() => router.replace(`${pathname}?${params.toString()}`, { scroll: false }))
+    navigate(params)
+  }
+
+  // Debounced so a full RSC round-trip (route re-render + cached data-layer
+  // lookup) doesn't fire on every keystroke — only once typing pauses.
+  function updateSearch(value: string) {
+    clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => update('q', value), 300)
   }
 
   return (
@@ -38,7 +52,7 @@ export function LeaderboardFilters({
             className="input"
             placeholder="Name, email or roll number"
             defaultValue={searchParams.get('q') ?? ''}
-            onChange={(event) => update('q', event.target.value)}
+            onChange={(event) => updateSearch(event.target.value)}
           />
         </div>
 

@@ -125,7 +125,12 @@ export const getStudentProfile = unstable_cache(fetchStudentProfile, ['student-p
   tags: [CACHE_TAG],
 })
 
-type DirectoryStudent = Student & {
+// Narrower than `Student`: the directory cards only ever show name, email,
+// department and join date, so bio/whatsapp/rollNumber/etc never need to
+// leave the database for this list view.
+type DirectoryStudentRow = Pick<Student, 'id' | 'fullName' | 'email' | 'department' | 'joinedAt'>
+
+type DirectoryStudent = DirectoryStudentRow & {
   roleAssignments: { role: { id: string; name: string; slug: string; color: string } }[]
   _count: { evaluations: number }
 }
@@ -133,8 +138,8 @@ type DirectoryStudent = Student & {
 async function fetchStudentDirectory(query?: string): Promise<DirectoryStudent[]> {
   const like = query ? `%${query}%` : null
 
-  const students = await sql<Student[]>`
-    SELECT * FROM "Student"
+  const students = await sql<DirectoryStudentRow[]>`
+    SELECT id, "fullName", email, department, "joinedAt" FROM "Student"
     ${like ? sql`WHERE ("fullName" ILIKE ${like} OR email ILIKE ${like} OR "rollNumber" ILIKE ${like})` : sql``}
     ORDER BY "fullName" ASC
   `

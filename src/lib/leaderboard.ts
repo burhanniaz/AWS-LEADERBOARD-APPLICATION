@@ -75,7 +75,11 @@ function pointsFor(score: number, weight: number) {
   return score * weight
 }
 
-type StudentWithRole = Student & {
+// Narrower than `Student` on purpose: this powers the leaderboard row list,
+// which never renders bio/whatsapp/rollNumber/etc, so there's no reason to
+// pull that (potentially long) text off the wire for every row on every
+// board view.
+type StudentWithRole = Pick<Student, 'id' | 'fullName' | 'email' | 'department'> & {
   roleId: string | null
   roleName: string | null
   roleColor: string | null
@@ -98,7 +102,8 @@ async function fetchLeaderboard(filters: LeaderboardFilters): Promise<Leaderboar
   const like = filters.search ? `%${filters.search}%` : null
 
   const students = await sql<StudentWithRole[]>`
-    SELECT s.*, ranked.role_id as "roleId", ranked.role_name as "roleName", ranked.role_color as "roleColor"
+    SELECT s.id, s."fullName", s.email, s.department,
+           ranked.role_id as "roleId", ranked.role_name as "roleName", ranked.role_color as "roleColor"
     FROM "Student" s
     LEFT JOIN LATERAL (
       SELECT r.id as role_id, r.name as role_name, r.color as role_color

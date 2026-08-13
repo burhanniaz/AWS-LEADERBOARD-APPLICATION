@@ -11,7 +11,7 @@ export function SetupNotice({ detail }: { detail?: string }) {
         commands below.
       </p>
       <pre className="mt-4 overflow-x-auto rounded-lg bg-squid p-4 text-xs leading-relaxed text-white">
-        {`npm run prisma:push\nnpm run seed`}
+        {`psql "$DATABASE_URL" -f db/schema.sql\nnpm run seed`}
       </pre>
       {detail ? (
         <p className="mt-3 break-words text-xs text-squid/50">Details: {detail}</p>
