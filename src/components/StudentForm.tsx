@@ -1,8 +1,9 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect } from 'react'
 import { saveStudentAction, type ActionState } from '@/lib/actions'
 import { SubmitButton } from '@/components/SubmitButton'
+import { useToast } from '@/components/Toast'
 import { DEPARTMENTS } from '@/lib/validation'
 
 type Option = { id: string; name: string }
@@ -33,6 +34,11 @@ export function StudentForm({
   values?: StudentFormValues
 }) {
   const [state, formAction] = useActionState(saveStudentAction, initialState)
+  const toast = useToast()
+
+  useEffect(() => {
+    if (state.error) toast.push(state.error, 'error')
+  }, [state.error, toast])
 
   return (
     <form action={formAction} className="card card-pad space-y-5">
@@ -171,12 +177,6 @@ export function StudentForm({
         </label>
         <textarea id="bio" name="bio" rows={3} className="input" defaultValue={values.bio ?? ''} />
       </div>
-
-      {state.error ? (
-        <p role="alert" className="rounded-md bg-aws-red/10 px-3 py-2 text-sm text-aws-red">
-          {state.error}
-        </p>
-      ) : null}
 
       <SubmitButton>{values.id ? 'Save changes' : 'Add builder'}</SubmitButton>
     </form>

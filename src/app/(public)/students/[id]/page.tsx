@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { ArrowLeft, ExternalLink, Link2, MessageCircle, Sparkles } from 'lucide-react'
 import { Avatar } from '@/components/Avatar'
 import { ScoreBar } from '@/components/ScoreBar'
 import { StatCard } from '@/components/StatCard'
@@ -17,11 +18,12 @@ export default async function StudentPage(props: { params: Promise<{ id: string 
 
   return (
     <div className="container-page py-8 sm:py-10">
-      <Link href="/" className="text-sm font-medium text-aws-blue hover:underline">
-        ← Back to leaderboard
+      <Link href="/" className="inline-flex items-center gap-1.5 text-sm font-medium text-aws-blue hover:underline">
+        <ArrowLeft className="h-4 w-4" aria-hidden />
+        Back to leaderboard
       </Link>
 
-      <header className="card card-pad mt-4 flex flex-col gap-5 sm:flex-row sm:items-center">
+      <header className="card card-pad mt-4 flex animate-fade-in flex-col gap-5 sm:flex-row sm:items-center">
         <Avatar name={profile.fullName} size="xl" />
         <div className="min-w-0 flex-1">
           <h1 className="text-2xl font-bold text-squid sm:text-3xl">{profile.fullName}</h1>
@@ -47,14 +49,15 @@ export default async function StudentPage(props: { params: Promise<{ id: string 
             </span>
           </div>
           {profile.bio ? <p className="mt-3 text-sm text-squid/70">{profile.bio}</p> : null}
-          <div className="mt-3 flex gap-3 text-sm">
+          <div className="mt-3 flex gap-4 text-sm">
             {profile.whatsappNumber ? (
               <a
                 href={`https://wa.me/${profile.whatsappNumber.replace(/[^0-9]/g, '')}`}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="text-aws-blue hover:underline"
+                className="flex items-center gap-1.5 text-aws-blue hover:underline"
               >
+                <MessageCircle className="h-4 w-4" aria-hidden />
                 WhatsApp
               </a>
             ) : null}
@@ -63,8 +66,9 @@ export default async function StudentPage(props: { params: Promise<{ id: string 
                 href={profile.linkedinUrl}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="text-aws-blue hover:underline"
+                className="flex items-center gap-1.5 text-aws-blue hover:underline"
               >
+                <Link2 className="h-4 w-4" aria-hidden />
                 LinkedIn
               </a>
             ) : null}
@@ -73,9 +77,14 @@ export default async function StudentPage(props: { params: Promise<{ id: string 
       </header>
 
       <section className="mt-6 grid gap-4 sm:grid-cols-3">
-        <StatCard label="Total points" value={formatNumber(summary.totalPoints)} />
-        <StatCard label="Quality" value={`${summary.quality}%`} hint="Score achieved vs available" />
-        <StatCard label="Evaluations" value={summary.evaluations.length} />
+        <StatCard icon="trophy" label="Total points" value={formatNumber(summary.totalPoints)} />
+        <StatCard
+          icon="award"
+          label="Quality"
+          value={`${summary.quality}%`}
+          hint="Score achieved vs available"
+        />
+        <StatCard icon="clipboardList" label="Evaluations" value={summary.evaluations.length} />
       </section>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
@@ -86,16 +95,20 @@ export default async function StudentPage(props: { params: Promise<{ id: string 
           </p>
 
           {summary.evaluations.length === 0 ? (
-            <p className="mt-6 text-sm text-squid/50">No evaluations recorded yet.</p>
+            <div className="mt-6 flex flex-col items-center gap-2 py-6 text-center">
+              <Sparkles className="h-7 w-7 text-squid/30" aria-hidden />
+              <p className="text-sm text-squid/50">No evaluations recorded yet.</p>
+            </div>
           ) : (
-            <ol className="mt-5 space-y-4">
-              {summary.evaluations.map((evaluation) => (
+            <ol className="relative mt-5 space-y-4 before:absolute before:bottom-2 before:left-[3px] before:top-2 before:w-px before:bg-surface-border">
+              {summary.evaluations.map((evaluation, index) => (
                 <li
                   key={evaluation.id}
-                  className="relative rounded-lg border border-surface-border p-4 pl-5"
+                  className="relative animate-fade-up rounded-lg border border-surface-border p-4 pl-8"
+                  style={{ animationDelay: `${Math.min(index, 12) * 40}ms` }}
                 >
                   <span
-                    className="absolute inset-y-0 left-0 w-1 rounded-l-lg"
+                    className="absolute left-0 top-5 h-2 w-2 rounded-full ring-4 ring-surface"
                     style={{ backgroundColor: evaluation.category.color }}
                   />
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -115,8 +128,9 @@ export default async function StudentPage(props: { params: Promise<{ id: string 
                       href={evaluation.evidenceUrl}
                       target="_blank"
                       rel="noreferrer noopener"
-                      className="mt-2 inline-block text-sm text-aws-blue hover:underline"
+                      className="mt-2 inline-flex items-center gap-1 text-sm text-aws-blue hover:underline"
                     >
+                      <ExternalLink className="h-3.5 w-3.5" aria-hidden />
                       View evidence
                     </a>
                   ) : null}

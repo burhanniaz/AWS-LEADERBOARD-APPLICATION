@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { ArrowLeft, ExternalLink } from 'lucide-react'
 import { StudentForm } from '@/components/StudentForm'
 import { sql } from '@/lib/db'
 import type { Student } from '@/lib/db-types'
@@ -28,10 +29,15 @@ export default async function EditStudentPage(props: { params: Promise<{ id: str
   return (
     <div className="container-page max-w-4xl py-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Link href="/admin/students" className="text-sm text-aws-blue hover:underline">
-          ← Back to builders
+        <Link href="/admin/students" className="inline-flex items-center gap-1.5 text-sm text-aws-blue hover:underline">
+          <ArrowLeft className="h-4 w-4" aria-hidden />
+          Back to builders
         </Link>
-        <Link href={`/students/${student.id}`} className="text-sm text-aws-blue hover:underline">
+        <Link
+          href={`/students/${student.id}`}
+          className="inline-flex items-center gap-1.5 text-sm text-aws-blue hover:underline"
+        >
+          <ExternalLink className="h-4 w-4" aria-hidden />
           View public profile
         </Link>
       </div>

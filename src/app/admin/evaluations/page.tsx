@@ -1,3 +1,4 @@
+import { ClipboardList } from 'lucide-react'
 import { EvaluationForm } from '@/components/EvaluationForm'
 import { sql } from '@/lib/db'
 import { getCategories, getCycles } from '@/lib/leaderboard'
@@ -34,7 +35,10 @@ export default async function AdminEvaluationsPage(
 
   return (
     <div className="container-page py-8">
-      <h1 className="text-2xl font-bold text-squid text-center">Evaluations</h1>
+      <h1 className="flex items-center justify-center gap-2 text-center text-2xl font-bold text-squid">
+        <ClipboardList className="h-6 w-6 text-smile" aria-hidden />
+        Evaluations
+      </h1>
 
       <div className="mt-6 mx-auto max-w-3xl">
         <EvaluationForm

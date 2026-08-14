@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ClipboardList, Settings, UserPlus } from 'lucide-react'
 import { StatCard } from '@/components/StatCard'
 import { SetupNotice } from '@/components/SetupNotice'
 import { sql } from '@/lib/db'
@@ -26,24 +27,53 @@ async function Overview() {
   return (
     <>
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Active builders" value={students} />
-        <StatCard label="Evaluations this cycle" value={evaluations} hint={cycle?.name} />
-        <StatCard label="Not yet scored" value={unscored} hint="Builders with zero evaluations" />
-        <StatCard label="Active cycle" value={cycle?.name ?? 'None'} />
+        <StatCard icon="users" label="Active builders" value={students} />
+        <StatCard
+          icon="clipboardList"
+          label="Evaluations this cycle"
+          value={evaluations}
+          hint={cycle?.name}
+        />
+        <StatCard icon="userX" label="Not yet scored" value={unscored} hint="Builders with zero evaluations" />
+        <StatCard icon="calendar" label="Active cycle" value={cycle?.name ?? 'None'} />
       </section>
 
       <section className="mt-6 grid gap-4 sm:grid-cols-3">
-        <Link href="/admin/students/new" className="card card-pad hover:shadow-raised">
-          <p className="font-bold text-squid">Add a builder</p>
-          <p className="mt-1 text-sm text-squid/60">Register someone and assign their role.</p>
+        <Link
+          href="/admin/students/new"
+          className="card card-pad flex items-start gap-3 transition-all hover:-translate-y-0.5 hover:shadow-raised"
+        >
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-smile/10 text-smile">
+            <UserPlus className="h-4 w-4" aria-hidden />
+          </span>
+          <span>
+            <p className="font-bold text-squid">Add a builder</p>
+            <p className="mt-1 text-sm text-squid/60">Register someone and assign their role.</p>
+          </span>
         </Link>
-        <Link href="/admin/evaluations" className="card card-pad hover:shadow-raised">
-          <p className="font-bold text-squid">Record an evaluation</p>
-          <p className="mt-1 text-sm text-squid/60">Score work with a written justification.</p>
+        <Link
+          href="/admin/evaluations"
+          className="card card-pad flex items-start gap-3 transition-all hover:-translate-y-0.5 hover:shadow-raised"
+        >
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-smile/10 text-smile">
+            <ClipboardList className="h-4 w-4" aria-hidden />
+          </span>
+          <span>
+            <p className="font-bold text-squid">Record an evaluation</p>
+            <p className="mt-1 text-sm text-squid/60">Score work with a written justification.</p>
+          </span>
         </Link>
-        <Link href="/admin/settings" className="card card-pad hover:shadow-raised">
-          <p className="font-bold text-squid">Metrics &amp; cycles</p>
-          <p className="mt-1 text-sm text-squid/60">Tune weights, roles and the active session.</p>
+        <Link
+          href="/admin/settings"
+          className="card card-pad flex items-start gap-3 transition-all hover:-translate-y-0.5 hover:shadow-raised"
+        >
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-smile/10 text-smile">
+            <Settings className="h-4 w-4" aria-hidden />
+          </span>
+          <span>
+            <p className="font-bold text-squid">Metrics &amp; cycles</p>
+            <p className="mt-1 text-sm text-squid/60">Tune weights, roles and the active session.</p>
+          </span>
         </Link>
       </section>
     </>

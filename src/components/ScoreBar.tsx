@@ -1,3 +1,7 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+
 export function ScoreBar({
   label,
   value,
@@ -12,6 +16,12 @@ export function ScoreBar({
   caption?: string
 }) {
   const pct = max > 0 ? Math.min(100, Math.round((value / max) * 100)) : 0
+  const [width, setWidth] = useState(0)
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setWidth(pct))
+    return () => cancelAnimationFrame(frame)
+  }, [pct])
 
   return (
     <div>
@@ -28,8 +38,8 @@ export function ScoreBar({
         aria-label={label}
       >
         <div
-          className="h-full rounded-full transition-[width] duration-500"
-          style={{ width: `${pct}%`, backgroundColor: color }}
+          className="h-full rounded-full transition-[width] duration-700 ease-out"
+          style={{ width: `${width}%`, backgroundColor: color }}
         />
       </div>
     </div>

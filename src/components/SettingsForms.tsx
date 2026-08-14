@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect } from 'react'
 import {
   saveCategoryAction,
   saveCycleAction,
@@ -8,25 +8,18 @@ import {
   type ActionState,
 } from '@/lib/actions'
 import { SubmitButton } from '@/components/SubmitButton'
+import { useToast } from '@/components/Toast'
 
 const initialState: ActionState = {}
 
-function Feedback({ state }: { state: ActionState }) {
-  if (state.error) {
-    return (
-      <p role="alert" className="rounded-md bg-aws-red/10 px-3 py-2 text-sm text-aws-red">
-        {state.error}
-      </p>
-    )
-  }
-  if (state.success) {
-    return (
-      <p role="status" className="rounded-md bg-aws-green/10 px-3 py-2 text-sm text-aws-green">
-        {state.success}
-      </p>
-    )
-  }
-  return null
+function useActionToast(state: ActionState) {
+  const toast = useToast()
+  useEffect(() => {
+    if (state.success) toast.push(state.success, 'success')
+  }, [state.success, toast])
+  useEffect(() => {
+    if (state.error) toast.push(state.error, 'error')
+  }, [state.error, toast])
 }
 
 export type CategoryValues = {
@@ -42,6 +35,7 @@ export type CategoryValues = {
 
 export function CategoryForm({ values = {} }: { values?: CategoryValues }) {
   const [state, formAction] = useActionState(saveCategoryAction, initialState)
+  useActionToast(state)
 
   return (
     <form action={formAction} className="space-y-3">
@@ -104,7 +98,6 @@ export function CategoryForm({ values = {} }: { values?: CategoryValues }) {
         <input type="checkbox" name="isActive" defaultChecked={values.isActive ?? true} />
         Active
       </label>
-      <Feedback state={state} />
       <SubmitButton className="btn-secondary">{values.id ? 'Save' : 'Add metric'}</SubmitButton>
     </form>
   )
@@ -120,6 +113,7 @@ export type RoleValues = {
 
 export function RoleForm({ values = {} }: { values?: RoleValues }) {
   const [state, formAction] = useActionState(saveRoleAction, initialState)
+  useActionToast(state)
 
   return (
     <form action={formAction} className="space-y-3">
@@ -155,7 +149,6 @@ export function RoleForm({ values = {} }: { values?: RoleValues }) {
           <input name="description" className="input" defaultValue={values.description ?? ''} />
         </div>
       </div>
-      <Feedback state={state} />
       <SubmitButton className="btn-secondary">{values.id ? 'Save' : 'Add role'}</SubmitButton>
     </form>
   )
@@ -172,6 +165,7 @@ export type CycleValues = {
 
 export function CycleForm({ values = {} }: { values?: CycleValues }) {
   const [state, formAction] = useActionState(saveCycleAction, initialState)
+  useActionToast(state)
 
   return (
     <form action={formAction} className="space-y-3">
@@ -215,7 +209,6 @@ export function CycleForm({ values = {} }: { values?: CycleValues }) {
         <input type="checkbox" name="isActive" defaultChecked={values.isActive ?? false} />
         Make this the active session
       </label>
-      <Feedback state={state} />
       <SubmitButton className="btn-secondary">{values.id ? 'Save' : 'Add session'}</SubmitButton>
     </form>
   )

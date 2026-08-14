@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Download } from 'lucide-react'
 import { SetupNotice } from '@/components/SetupNotice'
 import { StatCard } from '@/components/StatCard'
 import { getActiveCycle, getCategories, getCycles, getLeaderboard } from '@/lib/leaderboard'
@@ -41,15 +42,24 @@ async function Insights({ cycleId }: { cycleId?: string }) {
   return (
     <>
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Cycle" value={cycle.name} />
-        <StatCard label="Builders scored" value={`${scoredOverall.length}/${overall.length}`} />
-        <StatCard label="Participation" value={`${participation}%`} hint="Have at least one evaluation" />
-        <StatCard label="Median points" value={formatNumber(median)} />
+        <StatCard icon="calendar" label="Cycle" value={cycle.name} />
+        <StatCard icon="users" label="Builders scored" value={`${scoredOverall.length}/${overall.length}`} />
+        <StatCard
+          icon="percent"
+          label="Participation"
+          value={`${participation}%`}
+          hint="Have at least one evaluation"
+        />
+        <StatCard icon="chart" label="Median points" value={formatNumber(median)} />
       </section>
 
       <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {perCategory.map(({ category, rows }) => (
-          <article key={category.id} className="card card-pad">
+        {perCategory.map(({ category, rows }, index) => (
+          <article
+            key={category.id}
+            className="card card-pad animate-fade-up transition-shadow hover:shadow-raised"
+            style={{ animationDelay: `${index * 40}ms` }}
+          >
             <div className="flex items-center gap-2">
               <span
                 className="h-3 w-3 rounded-full"
@@ -97,9 +107,11 @@ async function Insights({ cycleId }: { cycleId?: string }) {
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <a className="btn-secondary" href={`/api/export/leaderboard?cycleId=${cycle.id}`}>
+            <Download className="h-4 w-4" aria-hidden />
             Leaderboard CSV
           </a>
           <a className="btn-secondary" href={`/api/export/evaluations?cycleId=${cycle.id}`}>
+            <Download className="h-4 w-4" aria-hidden />
             Evaluations CSV
           </a>
         </div>

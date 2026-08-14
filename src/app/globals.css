@@ -5,18 +5,36 @@
 @layer base {
   :root {
     --font-sans: 'Inter', 'Amazon Ember', system-ui, sans-serif;
+
+    /* Light theme surface tokens (RGB triplets so Tailwind's <alpha-value> works) */
+    --color-squid: 27 14 51; /* body text — deep violet ink */
+    --color-surface: 255 255 255; /* card background */
+    --color-surface-muted: 245 242 250; /* page background */
+    --color-surface-border: 225 217 240;
+  }
+
+  .dark {
+    --color-squid: 234 229 245; /* body text — lavender-white */
+    --color-surface: 30 19 51; /* card background — deep violet */
+    --color-surface-muted: 19 11 36; /* page background — near-black violet */
+    --color-surface-border: 61 42 94;
   }
 
   html {
     -webkit-text-size-adjust: 100%;
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
   }
 
   body {
-    @apply bg-surface-muted text-squid antialiased;
+    @apply bg-surface-muted text-squid antialiased transition-colors duration-200;
   }
 
   *:focus-visible {
-    @apply outline-none ring-2 ring-aws-blue ring-offset-2 ring-offset-white;
+    @apply outline-none ring-2 ring-aws-blue ring-offset-2 ring-offset-surface;
   }
 }
 
@@ -26,7 +44,7 @@
   }
 
   .card {
-    @apply rounded-xl border border-surface-border bg-white shadow-card;
+    @apply rounded-xl border border-surface-border bg-surface shadow-card transition-colors duration-200;
   }
 
   .card-pad {
@@ -43,16 +61,16 @@
   }
 
   .btn-secondary {
-    @apply btn border border-surface-border bg-white text-squid hover:bg-surface-muted;
+    @apply btn border border-surface-border bg-surface text-squid hover:bg-surface-muted;
   }
 
   .btn-danger {
-    @apply btn border border-aws-red/30 bg-white text-aws-red hover:bg-aws-red hover:text-white;
+    @apply btn border border-aws-red/30 bg-surface text-aws-red hover:bg-aws-red hover:text-white;
   }
 
   .input {
-    @apply w-full rounded-lg border border-surface-border bg-white px-3 py-2 text-sm text-squid
-           placeholder:text-squid/40 focus:border-aws-blue;
+    @apply w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm text-squid
+           placeholder:text-squid/40 focus:border-aws-blue transition-colors duration-150;
   }
 
   .label {

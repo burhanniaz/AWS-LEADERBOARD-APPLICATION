@@ -1,13 +1,21 @@
 import type { Config } from 'tailwindcss'
 
 const config: Config = {
+  darkMode: 'class',
   content: ['./src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
         // Chip-logo brand palette — deep violet ink + purple accent glow
+        // `ink` is the brand-fixed dark violet surface (header/footer/login),
+        // identical in both themes. `squid` is body text/ui-ink and flips via
+        // CSS variables so it stays legible in dark mode.
+        ink: {
+          DEFAULT: '#1B0E33',
+          dark: '#100821',
+        },
         squid: {
-          DEFAULT: '#1B0E33', // deep violet ink
+          DEFAULT: 'rgb(var(--color-squid) / <alpha-value>)',
           light: '#2C1B4D',
           dark: '#100821',
         },
@@ -23,9 +31,9 @@ const config: Config = {
           red: '#D91515',
         },
         surface: {
-          DEFAULT: '#FFFFFF',
-          muted: '#F5F2FA', // lavender-tinted muted surface
-          border: '#E1D9F0', // lavender-tinted border
+          DEFAULT: 'rgb(var(--color-surface) / <alpha-value>)',
+          muted: 'rgb(var(--color-surface-muted) / <alpha-value>)',
+          border: 'rgb(var(--color-surface-border) / <alpha-value>)',
         },
       },
       fontFamily: {
@@ -42,9 +50,24 @@ const config: Config = {
           '0%': { opacity: '0', transform: 'translateY(6px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        'fade-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        'scale-in': {
+          '0%': { opacity: '0', transform: 'scale(0.96)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        'slide-down': {
+          '0%': { opacity: '0', transform: 'translateY(-8px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
       },
       animation: {
         'fade-up': 'fade-up 0.3s ease-out both',
+        'fade-in': 'fade-in 0.2s ease-out both',
+        'scale-in': 'scale-in 0.2s ease-out both',
+        'slide-down': 'slide-down 0.2s ease-out both',
       },
     },
   },

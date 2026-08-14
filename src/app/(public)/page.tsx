@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import { LeaderboardFilters } from '@/components/LeaderboardFilters'
 import { LeaderboardTable } from '@/components/LeaderboardTable'
+import { Podium } from '@/components/Podium'
 import { SetupNotice } from '@/components/SetupNotice'
 import { StatCard } from '@/components/StatCard'
 import {
@@ -37,15 +38,23 @@ async function Board({ searchParams }: { searchParams: SearchParams }) {
   return (
     <>
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Active builders" value={stats.studentCount} />
+        <StatCard icon="users" label="Active builders" value={stats.studentCount} />
         <StatCard
+          icon="clipboardCheck"
           label="Evaluations recorded"
           value={stats.evaluationCount}
           hint={activeCycle?.name}
         />
-        <StatCard label="Average quality" value={`${stats.averageQuality}%`} />
-        <StatCard label="Current #1" value={top?.fullName ?? '—'} hint={top ? `${top.totalPoints} pts` : undefined} />
+        <StatCard icon="checkCircle" label="Average quality" value={`${stats.averageQuality}%`} />
+        <StatCard
+          icon="crown"
+          label="Current #1"
+          value={top?.fullName ?? '—'}
+          hint={top ? `${top.totalPoints} pts` : undefined}
+        />
       </section>
+
+      <Podium rows={rows} />
 
       <section className="mt-6 space-y-4">
         <LeaderboardFilters

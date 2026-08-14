@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Search, Users } from 'lucide-react'
 import { Avatar } from '@/components/Avatar'
 import { SetupNotice } from '@/components/SetupNotice'
 import { getStudentDirectory } from '@/lib/students'
@@ -11,21 +12,22 @@ async function Directory({ query }: { query?: string }) {
 
   if (students.length === 0) {
     return (
-      <div className="card card-pad text-center text-sm text-squid/60">
-        No builders registered yet.
+      <div className="card card-pad flex flex-col items-center gap-2 py-10 text-center animate-fade-in">
+        <Users className="h-8 w-8 text-squid/30" aria-hidden />
+        <p className="text-sm text-squid/60">No builders registered yet.</p>
       </div>
     )
   }
 
   return (
     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {students.map((student) => {
+      {students.map((student, index) => {
         const role = student.roleAssignments[0]?.role
         return (
-          <li key={student.id}>
+          <li key={student.id} className="animate-fade-up" style={{ animationDelay: `${Math.min(index, 12) * 30}ms` }}>
             <Link
               href={`/students/${student.id}`}
-              className="card card-pad flex h-full items-start gap-4 transition-shadow hover:shadow-raised"
+              className="card card-pad flex h-full items-start gap-4 transition-all hover:-translate-y-0.5 hover:shadow-raised"
             >
               <Avatar name={student.fullName} size="lg" />
               <div className="min-w-0">
@@ -79,13 +81,16 @@ export default async function StudentsPage(
       </p>
 
       <form className="mt-6 flex max-w-md gap-2" action="/students">
-        <input
-          name="q"
-          className="input"
-          placeholder="Search builders"
-          defaultValue={searchParams.q ?? ''}
-          aria-label="Search builders"
-        />
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-squid/40" aria-hidden />
+          <input
+            name="q"
+            className="input pl-9"
+            placeholder="Search builders"
+            defaultValue={searchParams.q ?? ''}
+            aria-label="Search builders"
+          />
+        </div>
         <button className="btn-primary" type="submit">
           Search
         </button>

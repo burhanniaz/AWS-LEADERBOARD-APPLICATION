@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { SearchX } from 'lucide-react'
 import { Avatar } from '@/components/Avatar'
 import { RankBadge } from '@/components/RankBadge'
 import type { LeaderboardRow } from '@/lib/leaderboard'
@@ -7,9 +8,10 @@ import { departmentLabel, formatNumber } from '@/lib/utils'
 export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
   if (rows.length === 0) {
     return (
-      <div className="card card-pad text-center">
+      <div className="card card-pad flex flex-col items-center gap-2 py-10 text-center animate-fade-in">
+        <SearchX className="h-8 w-8 text-squid/30" aria-hidden />
         <p className="text-sm font-semibold text-squid">No builders match these filters yet.</p>
-        <p className="mt-1 text-sm text-squid/60">
+        <p className="text-sm text-squid/60">
           Add builders and record evaluations from the admin panel to populate the board.
         </p>
       </div>
@@ -22,7 +24,7 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
       <div className="table-wrap hidden md:block">
         <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="border-b border-surface-border bg-surface-muted text-left">
+            <tr className="sticky top-16 z-10 border-b border-surface-border bg-surface-muted text-left backdrop-blur-sm">
               <th scope="col" className="w-20 px-4 py-3 font-semibold text-squid/70">
                 Rank
               </th>
@@ -44,10 +46,11 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {rows.map((row, index) => (
               <tr
                 key={row.studentId}
-                className="border-b border-surface-border/70 last:border-0 hover:bg-surface-muted/60"
+                className="animate-fade-up border-b border-surface-border/70 last:border-0 transition-colors hover:bg-surface-muted/60"
+                style={{ animationDelay: `${Math.min(index, 12) * 30}ms` }}
               >
                 <td className="px-4 py-3">
                   <RankBadge rank={row.rank} />
@@ -87,6 +90,7 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
                       <span
                         key={bucket.categoryId}
                         title={`${bucket.name}: ${formatNumber(bucket.points)} pts`}
+                        className="transition-all duration-500"
                         style={{
                           backgroundColor: bucket.color,
                           width: `${row.totalPoints ? (bucket.points / row.totalPoints) * 100 : 0}%`,
@@ -107,9 +111,12 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
 
       {/* Mobile cards */}
       <ul className="divide-y divide-surface-border md:hidden">
-        {rows.map((row) => (
-          <li key={row.studentId}>
-            <Link href={`/students/${row.studentId}`} className="flex items-center gap-3 p-4">
+        {rows.map((row, index) => (
+          <li key={row.studentId} className="animate-fade-up" style={{ animationDelay: `${Math.min(index, 12) * 30}ms` }}>
+            <Link
+              href={`/students/${row.studentId}`}
+              className="flex items-center gap-3 p-4 transition-colors active:bg-surface-muted"
+            >
               <RankBadge rank={row.rank} />
               <Avatar name={row.fullName} size="md" />
               <div className="min-w-0 flex-1">

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { CalendarRange, Sliders, Users } from 'lucide-react'
 import { CategoryForm, CycleForm, RoleForm } from '@/components/SettingsForms'
 import { sql } from '@/lib/db'
 import type { Category, Cycle, Role } from '@/lib/db-types'
@@ -33,7 +34,10 @@ export default async function AdminSettingsPage(
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <section className="card card-pad">
-          <h2 className="text-lg font-bold text-squid">Scoring metrics</h2>
+          <h2 className="flex items-center gap-2 text-lg font-bold text-squid">
+            <Sliders className="h-4 w-4 text-smile" aria-hidden />
+            Scoring metrics
+          </h2>
           <ul className="mt-4 space-y-2 text-sm">
             {categories.map((category) => (
               <li
@@ -87,7 +91,10 @@ export default async function AdminSettingsPage(
         </section>
 
         <section className="card card-pad">
-          <h2 className="text-lg font-bold text-squid">Roles</h2>
+          <h2 className="flex items-center gap-2 text-lg font-bold text-squid">
+            <Users className="h-4 w-4 text-smile" aria-hidden />
+            Roles
+          </h2>
           <ul className="mt-4 space-y-2 text-sm">
             {roles.map((role) => (
               <li
@@ -135,7 +142,10 @@ export default async function AdminSettingsPage(
         </section>
 
         <section className="card card-pad">
-          <h2 className="text-lg font-bold text-squid">Sessions</h2>
+          <h2 className="flex items-center gap-2 text-lg font-bold text-squid">
+            <CalendarRange className="h-4 w-4 text-smile" aria-hidden />
+            Sessions
+          </h2>
           <ul className="mt-4 space-y-2 text-sm">
             {cycles.map((cycle) => (
               <li key={cycle.id} className="rounded-md bg-surface-muted px-3 py-2">

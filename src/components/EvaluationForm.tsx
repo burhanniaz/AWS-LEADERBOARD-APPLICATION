@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from 'react'
 import { saveEvaluationAction, type ActionState } from '@/lib/actions'
 import { SubmitButton } from '@/components/SubmitButton'
+import { useToast } from '@/components/Toast'
 
 type Student = { id: string; fullName: string }
 type Category = { id: string; name: string; maxScore: number; weight: number }
@@ -24,10 +25,18 @@ export function EvaluationForm({
   const [state, formAction] = useActionState(saveEvaluationAction, initialState)
   const formRef = useRef<HTMLFormElement>(null)
   const [maxScore, setMaxScore] = useState(categories[0]?.maxScore ?? 10)
+  const toast = useToast()
 
   useEffect(() => {
-    if (state.success) formRef.current?.reset()
-  }, [state.success])
+    if (state.success) {
+      formRef.current?.reset()
+      toast.push(state.success, 'success')
+    }
+  }, [state.success, toast])
+
+  useEffect(() => {
+    if (state.error) toast.push(state.error, 'error')
+  }, [state.error, toast])
 
   const activeCycle = cycles.find((cycle) => cycle.isActive) ?? cycles[0]
 
@@ -165,17 +174,6 @@ export function EvaluationForm({
           />
         </div>
       </div>
-
-      {state.error ? (
-        <p role="alert" className="rounded-md bg-aws-red/10 px-3 py-2 text-sm text-aws-red">
-          {state.error}
-        </p>
-      ) : null}
-      {state.success ? (
-        <p role="status" className="rounded-md bg-aws-green/10 px-3 py-2 text-sm text-aws-green">
-          {state.success}
-        </p>
-      ) : null}
 
       <SubmitButton className="btn-primary w-full py-3 text-base" pendingLabel="Recording…">
         Record evaluation

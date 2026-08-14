@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 import { StudentForm } from '@/components/StudentForm'
 import { getCycles, getRoles } from '@/lib/leaderboard'
 
@@ -11,8 +12,9 @@ export default async function NewStudentPage() {
 
   return (
     <div className="container-page max-w-4xl py-8">
-      <Link href="/admin/students" className="text-sm text-aws-blue hover:underline">
-        ← Back to builders
+      <Link href="/admin/students" className="inline-flex items-center gap-1.5 text-sm text-aws-blue hover:underline">
+        <ArrowLeft className="h-4 w-4" aria-hidden />
+        Back to builders
       </Link>
       <h1 className="mt-3 text-2xl font-bold text-squid">Add builder</h1>
       <div className="mt-6">

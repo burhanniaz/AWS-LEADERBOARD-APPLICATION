@@ -1,6 +1,7 @@
 import Link from 'next/link'
+import { Pencil, UserPlus, Users } from 'lucide-react'
 import { Avatar } from '@/components/Avatar'
-import { deleteStudentAction } from '@/lib/actions'
+import { DeleteStudentButton } from '@/components/DeleteStudentButton'
 import { sql } from '@/lib/db'
 import type { Student } from '@/lib/db-types'
 import { formatDate } from '@/lib/utils'
@@ -44,6 +45,7 @@ export default async function AdminStudentsPage(
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-bold text-squid">Builders</h1>
         <Link href="/admin/students/new" className="btn-primary">
+          <UserPlus className="h-4 w-4" aria-hidden />
           Add builder
         </Link>
       </div>
@@ -63,7 +65,10 @@ export default async function AdminStudentsPage(
 
       <div className="card mt-6 overflow-hidden">
         {students.length === 0 ? (
-          <p className="p-6 text-sm text-squid/60">No builders yet.</p>
+          <div className="flex flex-col items-center gap-2 p-10 text-center">
+            <Users className="h-8 w-8 text-squid/30" aria-hidden />
+            <p className="text-sm text-squid/60">No builders yet.</p>
+          </div>
         ) : (
           <div className="table-wrap">
             <table className="w-full border-collapse text-sm">
@@ -78,8 +83,12 @@ export default async function AdminStudentsPage(
                 </tr>
               </thead>
               <tbody>
-                {students.map((student) => (
-                  <tr key={student.id} className="border-b border-surface-border/70 last:border-0">
+                {students.map((student, index) => (
+                  <tr
+                    key={student.id}
+                    className="animate-fade-up border-b border-surface-border/70 transition-colors last:border-0 hover:bg-surface-muted/60"
+                    style={{ animationDelay: `${Math.min(index, 12) * 30}ms` }}
+                  >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <Avatar name={student.fullName} size="sm" />
@@ -100,14 +109,10 @@ export default async function AdminStudentsPage(
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-2">
                         <Link href={`/admin/students/${student.id}`} className="btn-secondary py-1">
+                          <Pencil className="h-3.5 w-3.5" aria-hidden />
                           Edit
                         </Link>
-                        <form action={deleteStudentAction}>
-                          <input type="hidden" name="id" value={student.id} />
-                          <button className="btn-danger py-1" type="submit">
-                            Delete
-                          </button>
-                        </form>
+                        <DeleteStudentButton id={student.id} fullName={student.fullName} />
                       </div>
                     </td>
                   </tr>
