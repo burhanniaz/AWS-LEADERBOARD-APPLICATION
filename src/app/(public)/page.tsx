@@ -3,6 +3,7 @@ import { LeaderboardFilters } from '@/components/LeaderboardFilters'
 import { LeaderboardTable } from '@/components/LeaderboardTable'
 import { Podium } from '@/components/Podium'
 import { SetupNotice } from '@/components/SetupNotice'
+import { BoardSkeleton } from '@/components/skeletons'
 import { StatCard } from '@/components/StatCard'
 import {
   getActiveCycle,
@@ -92,7 +93,7 @@ export default async function HomePage(props: { searchParams: Promise<SearchPara
    
       </div>
 
-      <Suspense fallback={<div className="card card-pad">Loading board…</div>}>{content}</Suspense>
+      <Suspense fallback={<BoardSkeleton />}>{content}</Suspense>
     </div>
   )
 }

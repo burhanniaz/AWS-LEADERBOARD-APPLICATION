@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Download } from 'lucide-react'
+import { PageHeading } from '@/components/PageHeading'
 import { SetupNotice } from '@/components/SetupNotice'
 import { StatCard } from '@/components/StatCard'
 import { getActiveCycle, getCategories, getCycles, getLeaderboard } from '@/lib/leaderboard'
@@ -53,7 +54,7 @@ async function Insights({ cycleId }: { cycleId?: string }) {
         <StatCard icon="chart" label="Median points" value={formatNumber(median)} />
       </section>
 
-      <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {perCategory.map(({ category, rows }, index) => (
           <article
             key={category.id}
@@ -135,10 +136,11 @@ export default async function InsightsPage(
 
   return (
     <div className="container-page py-8 sm:py-10">
-      <h1 className="text-3xl font-bold tracking-tight text-squid">Insights</h1>
-      <p className="mt-2 max-w-2xl text-squid/70">
-        Where the club is strong, where it is thin, and who leads each metric.
-      </p>
+      <PageHeading
+        eyebrow="AWS UET Taxila"
+        title="Insights"
+        description="Where the club is strong, where it is thin, and who leads each metric."
+      />
       <div className="mt-6">{content}</div>
     </div>
   )

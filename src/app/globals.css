@@ -11,13 +11,31 @@
     --color-surface: 255 255 255; /* card background */
     --color-surface-muted: 245 242 250; /* page background */
     --color-surface-border: 225 217 240;
+    --color-header: 27 14 51; /* header/footer brand band */
+    --color-smile: 123 94 167; /* accent */
+    --color-smile-dark: 90 62 158;
+    --color-smile-light: 159 132 212;
+    --color-aws-blue: 139 92 246; /* links / focus rings */
+    --color-aws-green: 3 127 12;
+    --color-aws-red: 217 21 21;
   }
 
+  /* Dark theme — "AWS Slate": deep AWS-console navy instead of a dimmed
+     violet, with AWS orange as the one primary accent (badges, buttons,
+     rank-1) and a cooler blue reserved for links/focus so the whole screen
+     doesn't turn orange. */
   .dark {
-    --color-squid: 234 229 245; /* body text — lavender-white */
-    --color-surface: 30 19 51; /* card background — deep violet */
-    --color-surface-muted: 19 11 36; /* page background — near-black violet */
-    --color-surface-border: 61 42 94;
+    --color-squid: 234 242 251; /* body text — cool near-white */
+    --color-surface: 19 36 55; /* card background — one step up from page */
+    --color-surface-muted: 11 21 33; /* page background */
+    --color-surface-border: 37 65 92; /* steel-blue, not neutral grey */
+    --color-header: 8 16 25; /* header/footer band — darker than cards */
+    --color-smile: 255 153 0; /* accent — AWS orange */
+    --color-smile-dark: 204 122 0;
+    --color-smile-light: 255 184 77;
+    --color-aws-blue: 41 182 246; /* links / focus rings — kept distinct from the orange accent */
+    --color-aws-green: 74 222 128;
+    --color-aws-red: 248 113 113;
   }
 
   html {
@@ -57,7 +75,7 @@
   }
 
   .btn-primary {
-    @apply btn bg-gradient-to-br from-smile to-smile-dark text-white shadow-[0_8px_24px_rgba(123,94,167,0.35)] hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(90,62,158,0.45)] active:translate-y-0;
+    @apply btn bg-gradient-to-br from-smile to-smile-dark text-white shadow-[0_8px_24px_rgb(var(--color-smile)/35%)] hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgb(var(--color-smile-dark)/45%)] active:translate-y-0;
   }
 
   .btn-secondary {
@@ -96,10 +114,17 @@
   }
 }
 
-/* Chip-logo signature: soft violet glow blooms used behind dark hero/header surfaces */
+/* Chip-logo signature: soft accent glow blooms used behind dark hero/header
+   surfaces. Colors are variable-driven so the glow follows whichever accent
+   the active theme defines instead of staying hardcoded to one hue.
+   Sized in fixed px (not % of the element's own box) so it reads as the
+   same subtle corner bloom whether it's behind a ~130px header bar or the
+   full-height login hero — percentage sizing blew up into a hard-edged
+   smear on the short header. */
 .glow-field {
   position: relative;
   isolation: isolate;
+  overflow: hidden;
 }
 .glow-field::before {
   content: '';
@@ -108,8 +133,8 @@
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(60% 90% at 15% -10%, rgba(159, 132, 212, 0.35), transparent 60%),
-    radial-gradient(50% 80% at 100% 110%, rgba(123, 94, 167, 0.28), transparent 60%);
+    radial-gradient(280px 220px at 6% 0%, rgb(var(--color-smile-light) / 0.16), transparent 75%),
+    radial-gradient(320px 260px at 100% 100%, rgb(var(--color-smile) / 0.14), transparent 75%);
 }
 
 @keyframes btn-shine-sweep {

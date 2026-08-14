@@ -2,9 +2,9 @@ import Link from 'next/link'
 import { Crown, Medal } from 'lucide-react'
 import { Avatar } from '@/components/Avatar'
 import type { LeaderboardRow } from '@/lib/leaderboard'
-import { cn, formatNumber } from '@/lib/utils'
+import { cn, formatNumber, RANK_COLORS } from '@/lib/utils'
 
-const PODIUM_STYLE: Record<number, { order: string; lift: string; ring: string; badge: string }> = {
+const PODIUM_STYLE: Record<number, { order: string; lift: string; ring: string; badge: string; badgeStyle?: React.CSSProperties }> = {
   1: {
     order: 'sm:order-2',
     lift: 'sm:-translate-y-4',
@@ -15,13 +15,15 @@ const PODIUM_STYLE: Record<number, { order: string; lift: string; ring: string; 
     order: 'sm:order-1',
     lift: '',
     ring: 'ring-2 ring-surface-border',
-    badge: 'bg-[#C0C6CE] text-squid',
+    badge: 'text-squid',
+    badgeStyle: { backgroundColor: RANK_COLORS[2] },
   },
   3: {
     order: 'sm:order-3',
     lift: '',
     ring: 'ring-2 ring-surface-border',
-    badge: 'bg-[#CD8B62] text-white',
+    badge: 'text-white',
+    badgeStyle: { backgroundColor: RANK_COLORS[3] },
   },
 }
 
@@ -50,6 +52,7 @@ export function Podium({ rows }: { rows: LeaderboardRow[] }) {
                 'absolute -top-3 flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold shadow-raised',
                 style.badge,
               )}
+              style={style.badgeStyle}
             >
               {rank}
             </span>
@@ -63,7 +66,7 @@ export function Podium({ rows }: { rows: LeaderboardRow[] }) {
             <p className="truncate text-xs text-squid/50">{row.roleName ?? 'Unassigned'}</p>
             <p className="mt-2 text-2xl font-bold tabular-nums text-squid">
               {formatNumber(row.totalPoints)}
-              <span className="ml-1 text-xs font-medium text-squid/40">pts</span>
+              <span className="ml-1 text-xs font-medium text-squid/50">pts</span>
             </p>
           </Link>
         )

@@ -61,7 +61,7 @@ export function HeaderNav({ isAuthed }: { isAuthed: boolean }) {
       </div>
 
       {open ? (
-        <div className="absolute inset-x-0 top-16 z-40 animate-slide-down border-b border-white/10 bg-ink shadow-raised md:hidden">
+        <div className="absolute inset-x-0 top-16 z-40 animate-slide-down border-b border-white/10 bg-header shadow-raised md:hidden">
           <nav className="container-page flex flex-col gap-1 py-3 text-sm">
             {NAV.map((item) => {
               const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)

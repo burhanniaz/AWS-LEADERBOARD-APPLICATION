@@ -79,12 +79,12 @@ export function StatCard({
             <Icon className="h-4 w-4" aria-hidden />
           </span>
         ) : null}
-        <p className="truncate text-xs font-semibold uppercase tracking-wide text-squid/50">{label}</p>
+        <p className="truncate text-xs font-semibold uppercase tracking-wide text-squid/60">{label}</p>
       </div>
       <p className="mt-2 truncate text-3xl font-bold tabular-nums text-squid">
         {typeof value === 'number' ? <CountUp value={value} /> : value}
       </p>
-      {hint ? <p className="mt-1 truncate text-xs text-squid/50">{hint}</p> : null}
+      {hint ? <p className="mt-1 truncate text-xs text-squid/60">{hint}</p> : null}
     </div>
   )
 }

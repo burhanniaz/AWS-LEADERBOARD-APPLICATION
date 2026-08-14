@@ -6,7 +6,7 @@ export const metadata = { title: 'Sign in' }
 export default async function LoginPage(props: { searchParams: Promise<{ next?: string }> }) {
   const searchParams = await props.searchParams;
   return (
-    <div className="glow-field flex min-h-screen flex-col items-center justify-center bg-ink px-4 py-12">
+    <div className="glow-field flex min-h-screen flex-col items-center justify-center bg-header px-4 py-12">
       <div className="w-full max-w-sm animate-scale-in">
         <div className="mb-8 flex flex-col items-center text-white">
           <AwsMark className="h-10 w-auto" />

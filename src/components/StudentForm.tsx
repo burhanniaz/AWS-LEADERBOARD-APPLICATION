@@ -2,9 +2,11 @@
 
 import { useActionState, useEffect } from 'react'
 import { saveStudentAction, type ActionState } from '@/lib/actions'
+import { FieldError } from '@/components/FieldError'
 import { SubmitButton } from '@/components/SubmitButton'
 import { useToast } from '@/components/Toast'
 import { DEPARTMENTS } from '@/lib/validation'
+import { cn } from '@/lib/utils'
 
 type Option = { id: string; name: string }
 
@@ -35,6 +37,7 @@ export function StudentForm({
 }) {
   const [state, formAction] = useActionState(saveStudentAction, initialState)
   const toast = useToast()
+  const fieldErrors = state.fieldErrors ?? {}
 
   useEffect(() => {
     if (state.error) toast.push(state.error, 'error')
@@ -53,9 +56,11 @@ export function StudentForm({
             id="fullName"
             name="fullName"
             required
-            className="input"
+            aria-invalid={fieldErrors.fullName ? true : undefined}
+            className={cn('input', fieldErrors.fullName && 'border-aws-red focus:border-aws-red')}
             defaultValue={values.fullName ?? ''}
           />
+          <FieldError message={fieldErrors.fullName} />
         </div>
         <div>
           <label className="label" htmlFor="rollNumber">
@@ -78,9 +83,11 @@ export function StudentForm({
             name="email"
             type="email"
             required
-            className="input"
+            aria-invalid={fieldErrors.email ? true : undefined}
+            className={cn('input', fieldErrors.email && 'border-aws-red focus:border-aws-red')}
             defaultValue={values.email ?? ''}
           />
+          <FieldError message={fieldErrors.email} />
         </div>
         <div>
           <label className="label" htmlFor="whatsappNumber">

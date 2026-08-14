@@ -20,20 +20,23 @@ const config: Config = {
           dark: '#100821',
         },
         smile: {
-          DEFAULT: '#7B5EA7', // primary purple accent
-          dark: '#5A3E9E',
-          light: '#9F84D4',
+          DEFAULT: 'rgb(var(--color-smile) / <alpha-value>)', // primary accent
+          dark: 'rgb(var(--color-smile-dark) / <alpha-value>)',
+          light: 'rgb(var(--color-smile-light) / <alpha-value>)',
         },
         aws: {
-          blue: '#8B5CF6', // violet focus/info accent
+          blue: 'rgb(var(--color-aws-blue) / <alpha-value>)', // links / focus accent
           teal: '#00A1C9',
-          green: '#037F0C',
-          red: '#D91515',
+          green: 'rgb(var(--color-aws-green) / <alpha-value>)',
+          red: 'rgb(var(--color-aws-red) / <alpha-value>)',
         },
         surface: {
           DEFAULT: 'rgb(var(--color-surface) / <alpha-value>)',
           muted: 'rgb(var(--color-surface-muted) / <alpha-value>)',
           border: 'rgb(var(--color-surface-border) / <alpha-value>)',
+        },
+        header: {
+          DEFAULT: 'rgb(var(--color-header) / <alpha-value>)', // header/footer brand band
         },
       },
       fontFamily: {

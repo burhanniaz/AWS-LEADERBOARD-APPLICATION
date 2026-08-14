@@ -1,9 +1,11 @@
 import Link from 'next/link'
 import { Search, Users } from 'lucide-react'
 import { Avatar } from '@/components/Avatar'
+import { ColorBadge } from '@/components/ColorBadge'
+import { PageHeading } from '@/components/PageHeading'
 import { SetupNotice } from '@/components/SetupNotice'
 import { getStudentDirectory } from '@/lib/students'
-import { departmentLabel, formatDate } from '@/lib/utils'
+import { departmentLabel, formatDate, pluralize } from '@/lib/utils'
 
 export const metadata = { title: 'Builders' }
 
@@ -36,19 +38,12 @@ async function Directory({ query }: { query?: string }) {
                   {departmentLabel(student.department) ?? student.email}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {role ? (
-                    <span
-                      className="badge"
-                      style={{ backgroundColor: `${role.color}1A`, color: role.color }}
-                    >
-                      {role.name}
-                    </span>
-                  ) : null}
+                  {role ? <ColorBadge color={role.color}>{role.name}</ColorBadge> : null}
                   <span className="badge bg-surface-muted text-squid/60">
-                    {student._count.evaluations} evaluations
+                    {pluralize(student._count.evaluations, 'evaluation')}
                   </span>
                 </div>
-                <p className="mt-2 text-xs text-squid/40">
+                <p className="mt-2 text-xs text-squid/60">
                   Joined {formatDate(student.joinedAt)}
                 </p>
               </div>
@@ -75,10 +70,11 @@ export default async function StudentsPage(
 
   return (
     <div className="container-page py-8 sm:py-10">
-      <h1 className="text-3xl font-bold tracking-tight text-squid">Builders</h1>
-      <p className="mt-2 max-w-2xl text-squid/70">
-        Everyone on record in the club, with their current role and evaluation count.
-      </p>
+      <PageHeading
+        eyebrow="AWS UET Taxila"
+        title="Builders"
+        description="Everyone on record in the club, with their current role and evaluation count."
+      />
 
       <form className="mt-6 flex max-w-md gap-2" action="/students">
         <div className="relative flex-1">

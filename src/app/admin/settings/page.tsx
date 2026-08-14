@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { CalendarRange, Sliders, Users } from 'lucide-react'
 import { CategoryForm, CycleForm, RoleForm } from '@/components/SettingsForms'
+import { PageHeading } from '@/components/PageHeading'
 import { sql } from '@/lib/db'
 import type { Category, Cycle, Role } from '@/lib/db-types'
 import { formatDate } from '@/lib/utils'
@@ -30,7 +31,7 @@ export default async function AdminSettingsPage(
 
   return (
     <div className="container-page py-8">
-      <h1 className="text-2xl font-bold text-squid">Settings</h1>
+      <PageHeading title="Settings" description="Tune scoring metrics, roles and cohort sessions." />
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <section className="card card-pad">
@@ -39,10 +40,11 @@ export default async function AdminSettingsPage(
             Scoring metrics
           </h2>
           <ul className="mt-4 space-y-2 text-sm">
-            {categories.map((category) => (
+            {categories.map((category, index) => (
               <li
                 key={category.id}
-                className="flex items-center gap-2 rounded-md bg-surface-muted px-3 py-2"
+                className="flex animate-fade-up items-center gap-2 rounded-md bg-surface-muted px-3 py-2"
+                style={{ animationDelay: `${Math.min(index, 12) * 30}ms` }}
               >
                 <span
                   className="h-3 w-3 rounded-full"
@@ -96,10 +98,11 @@ export default async function AdminSettingsPage(
             Roles
           </h2>
           <ul className="mt-4 space-y-2 text-sm">
-            {roles.map((role) => (
+            {roles.map((role, index) => (
               <li
                 key={role.id}
-                className="flex items-center gap-2 rounded-md bg-surface-muted px-3 py-2"
+                className="flex animate-fade-up items-center gap-2 rounded-md bg-surface-muted px-3 py-2"
+                style={{ animationDelay: `${Math.min(index, 12) * 30}ms` }}
               >
                 <span
                   className="h-3 w-3 rounded-full"
@@ -147,8 +150,12 @@ export default async function AdminSettingsPage(
             Sessions
           </h2>
           <ul className="mt-4 space-y-2 text-sm">
-            {cycles.map((cycle) => (
-              <li key={cycle.id} className="rounded-md bg-surface-muted px-3 py-2">
+            {cycles.map((cycle, index) => (
+              <li
+                key={cycle.id}
+                className="animate-fade-up rounded-md bg-surface-muted px-3 py-2"
+                style={{ animationDelay: `${Math.min(index, 12) * 30}ms` }}
+              >
                 <div className="flex items-center gap-2">
                   <span className="flex-1 font-medium text-squid">{cycle.name}</span>
                   {cycle.isActive ? (

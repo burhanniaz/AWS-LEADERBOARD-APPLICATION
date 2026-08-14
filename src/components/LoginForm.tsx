@@ -3,14 +3,17 @@
 import { Lock, Mail } from 'lucide-react'
 import { useActionState, useEffect } from 'react'
 import { loginAction, type ActionState } from '@/lib/actions'
+import { FieldError } from '@/components/FieldError'
 import { SubmitButton } from '@/components/SubmitButton'
 import { useToast } from '@/components/Toast'
+import { cn } from '@/lib/utils'
 
 const initialState: ActionState = {}
 
 export function LoginForm({ next }: { next?: string }) {
   const [state, formAction] = useActionState(loginAction, initialState)
   const toast = useToast()
+  const fieldErrors = state.fieldErrors ?? {}
 
   useEffect(() => {
     if (state.error) toast.push(state.error, 'error')
@@ -32,10 +35,12 @@ export function LoginForm({ next }: { next?: string }) {
             type="email"
             autoComplete="email"
             required
-            className="input pl-9"
+            aria-invalid={fieldErrors.email ? true : undefined}
+            className={cn('input pl-9', fieldErrors.email && 'border-aws-red focus:border-aws-red')}
             placeholder="you@club.org"
           />
         </div>
+        <FieldError message={fieldErrors.email} />
       </div>
 
       <div>
@@ -51,10 +56,12 @@ export function LoginForm({ next }: { next?: string }) {
             autoComplete="current-password"
             required
             minLength={8}
-            className="input pl-9"
+            aria-invalid={fieldErrors.password ? true : undefined}
+            className={cn('input pl-9', fieldErrors.password && 'border-aws-red focus:border-aws-red')}
             placeholder="••••••••"
           />
         </div>
+        <FieldError message={fieldErrors.password} />
       </div>
 
       <SubmitButton className="btn-primary w-full" pendingLabel="Signing in…">

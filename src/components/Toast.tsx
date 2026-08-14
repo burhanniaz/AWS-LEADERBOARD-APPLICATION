@@ -7,22 +7,37 @@ type Toast = { id: number; message: string; type: 'success' | 'error' }
 type ToastContextValue = { push: (message: string, type?: Toast['type']) => void }
 
 const ToastContext = createContext<ToastContextValue | null>(null)
+const TOAST_DURATION = 4000
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([])
   const idRef = useRef(0)
+  const timers = useRef(new Map<number, ReturnType<typeof setTimeout>>())
 
-  const push = useCallback((message: string, type: Toast['type'] = 'success') => {
-    const id = idRef.current++
-    setToasts((current) => [...current, { id, message, type }])
-    setTimeout(() => {
-      setToasts((current) => current.filter((toast) => toast.id !== id))
-    }, 4000)
+  const dismiss = useCallback((id: number) => {
+    clearTimeout(timers.current.get(id))
+    timers.current.delete(id)
+    setToasts((current) => current.filter((toast) => toast.id !== id))
   }, [])
 
-  function dismiss(id: number) {
-    setToasts((current) => current.filter((toast) => toast.id !== id))
-  }
+  const schedule = useCallback(
+    (id: number) => {
+      timers.current.set(
+        id,
+        setTimeout(() => dismiss(id), TOAST_DURATION),
+      )
+    },
+    [dismiss],
+  )
+
+  const push = useCallback(
+    (message: string, type: Toast['type'] = 'success') => {
+      const id = idRef.current++
+      setToasts((current) => [...current, { id, message, type }])
+      schedule(id)
+    },
+    [schedule],
+  )
 
   return (
     <ToastContext.Provider value={{ push }}>
@@ -32,6 +47,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           <div
             key={toast.id}
             role={toast.type === 'error' ? 'alert' : 'status'}
+            onMouseEnter={() => clearTimeout(timers.current.get(toast.id))}
+            onMouseLeave={() => schedule(toast.id)}
+            onFocus={() => clearTimeout(timers.current.get(toast.id))}
+            onBlur={() => schedule(toast.id)}
+            tabIndex={-1}
             className={`pointer-events-auto flex w-full max-w-sm animate-slide-down items-start gap-2 rounded-lg border p-3 pr-2 text-sm shadow-raised backdrop-blur-sm ${
               toast.type === 'error'
                 ? 'border-aws-red/30 bg-aws-red/10 text-aws-red'

@@ -7,8 +7,10 @@ import {
   saveRoleAction,
   type ActionState,
 } from '@/lib/actions'
+import { FieldError } from '@/components/FieldError'
 import { SubmitButton } from '@/components/SubmitButton'
 import { useToast } from '@/components/Toast'
+import { cn } from '@/lib/utils'
 
 const initialState: ActionState = {}
 
@@ -36,6 +38,7 @@ export type CategoryValues = {
 export function CategoryForm({ values = {} }: { values?: CategoryValues }) {
   const [state, formAction] = useActionState(saveCategoryAction, initialState)
   useActionToast(state)
+  const fieldErrors = state.fieldErrors ?? {}
 
   return (
     <form action={formAction} className="space-y-3">
@@ -43,7 +46,14 @@ export function CategoryForm({ values = {} }: { values?: CategoryValues }) {
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label className="label">Name</label>
-          <input name="name" required className="input" defaultValue={values.name ?? ''} />
+          <input
+            name="name"
+            required
+            aria-invalid={fieldErrors.name ? true : undefined}
+            className={cn('input', fieldErrors.name && 'border-aws-red focus:border-aws-red')}
+            defaultValue={values.name ?? ''}
+          />
+          <FieldError message={fieldErrors.name} />
         </div>
         <div>
           <label className="label">Weight</label>
@@ -53,9 +63,11 @@ export function CategoryForm({ values = {} }: { values?: CategoryValues }) {
             step="0.1"
             min={0.1}
             required
-            className="input"
+            aria-invalid={fieldErrors.weight ? true : undefined}
+            className={cn('input', fieldErrors.weight && 'border-aws-red focus:border-aws-red')}
             defaultValue={values.weight ?? 1}
           />
+          <FieldError message={fieldErrors.weight} />
         </div>
         <div>
           <label className="label">Default max score</label>
@@ -64,9 +76,11 @@ export function CategoryForm({ values = {} }: { values?: CategoryValues }) {
             type="number"
             min={1}
             required
-            className="input"
+            aria-invalid={fieldErrors.maxScore ? true : undefined}
+            className={cn('input', fieldErrors.maxScore && 'border-aws-red focus:border-aws-red')}
             defaultValue={values.maxScore ?? 10}
           />
+          <FieldError message={fieldErrors.maxScore} />
         </div>
         <div>
           <label className="label">Colour</label>
@@ -75,7 +89,7 @@ export function CategoryForm({ values = {} }: { values?: CategoryValues }) {
             type="color"
             required
             className="input h-10 p-1"
-            defaultValue={values.color ?? '#0972D3'}
+            defaultValue={values.color ?? '#7B5EA7'}
           />
         </div>
         <div>
@@ -114,6 +128,7 @@ export type RoleValues = {
 export function RoleForm({ values = {} }: { values?: RoleValues }) {
   const [state, formAction] = useActionState(saveRoleAction, initialState)
   useActionToast(state)
+  const fieldErrors = state.fieldErrors ?? {}
 
   return (
     <form action={formAction} className="space-y-3">
@@ -121,7 +136,14 @@ export function RoleForm({ values = {} }: { values?: RoleValues }) {
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label className="label">Name</label>
-          <input name="name" required className="input" defaultValue={values.name ?? ''} />
+          <input
+            name="name"
+            required
+            aria-invalid={fieldErrors.name ? true : undefined}
+            className={cn('input', fieldErrors.name && 'border-aws-red focus:border-aws-red')}
+            defaultValue={values.name ?? ''}
+          />
+          <FieldError message={fieldErrors.name} />
         </div>
         <div>
           <label className="label">Colour</label>
@@ -130,7 +152,7 @@ export function RoleForm({ values = {} }: { values?: RoleValues }) {
             type="color"
             required
             className="input h-10 p-1"
-            defaultValue={values.color ?? '#FF9900'}
+            defaultValue={values.color ?? '#8B5CF6'}
           />
         </div>
         <div>
@@ -166,6 +188,7 @@ export type CycleValues = {
 export function CycleForm({ values = {} }: { values?: CycleValues }) {
   const [state, formAction] = useActionState(saveCycleAction, initialState)
   useActionToast(state)
+  const fieldErrors = state.fieldErrors ?? {}
 
   return (
     <form action={formAction} className="space-y-3">
@@ -176,10 +199,12 @@ export function CycleForm({ values = {} }: { values?: CycleValues }) {
           <input
             name="name"
             required
-            className="input"
+            aria-invalid={fieldErrors.name ? true : undefined}
+            className={cn('input', fieldErrors.name && 'border-aws-red focus:border-aws-red')}
             placeholder="Session 2027"
             defaultValue={values.name ?? ''}
           />
+          <FieldError message={fieldErrors.name} />
         </div>
         <div>
           <label className="label">Start date</label>
@@ -187,9 +212,11 @@ export function CycleForm({ values = {} }: { values?: CycleValues }) {
             name="startDate"
             type="date"
             required
-            className="input"
+            aria-invalid={fieldErrors.startDate ? true : undefined}
+            className={cn('input', fieldErrors.startDate && 'border-aws-red focus:border-aws-red')}
             defaultValue={values.startDate ?? ''}
           />
+          <FieldError message={fieldErrors.startDate} />
         </div>
         <div>
           <label className="label">End date</label>

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, ExternalLink, Link2, MessageCircle, Sparkles } from 'lucide-react'
 import { Avatar } from '@/components/Avatar'
+import { ColorBadge } from '@/components/ColorBadge'
 import { ScoreBar } from '@/components/ScoreBar'
 import { StatCard } from '@/components/StatCard'
 import { getStudentProfile, summariseProfile } from '@/lib/students'
@@ -33,15 +34,9 @@ export default async function StudentPage(props: { params: Promise<{ id: string 
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             {currentRole ? (
-              <span
-                className="badge"
-                style={{
-                  backgroundColor: `${currentRole.role.color}1A`,
-                  color: currentRole.role.color,
-                }}
-              >
+              <ColorBadge color={currentRole.role.color}>
                 {currentRole.role.name} · {currentRole.cycle.name}
-              </span>
+              </ColorBadge>
             ) : null}
             <span className="badge bg-surface-muted text-squid/70">{profile.status}</span>
             <span className="badge bg-surface-muted text-squid/70">

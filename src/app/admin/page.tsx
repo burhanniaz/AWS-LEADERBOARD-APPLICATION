@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ClipboardList, Settings, UserPlus } from 'lucide-react'
+import { PageHeading } from '@/components/PageHeading'
 import { StatCard } from '@/components/StatCard'
 import { SetupNotice } from '@/components/SetupNotice'
 import { sql } from '@/lib/db'
@@ -90,7 +91,7 @@ export default async function AdminHome() {
 
   return (
     <div className="container-page py-8">
-      <h1 className="text-2xl font-bold text-squid">Overview</h1>
+      <PageHeading title="Overview" />
       <div className="mt-6">{content}</div>
     </div>
   )

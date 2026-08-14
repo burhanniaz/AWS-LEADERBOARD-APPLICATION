@@ -21,14 +21,19 @@ import {
   studentSchema,
 } from '@/lib/validation'
 
-export type ActionState = { error?: string; success?: string }
+export type ActionState = { error?: string; success?: string; fieldErrors?: Record<string, string> }
 
-function firstError(error: unknown) {
+function parseError(error: unknown): { error: string; fieldErrors?: Record<string, string> } {
   if (error && typeof error === 'object' && 'issues' in error) {
-    const issues = (error as { issues: { message: string }[] }).issues
-    return issues[0]?.message ?? 'Invalid input.'
+    const issues = (error as { issues: { message: string; path: (string | number)[] }[] }).issues
+    const fieldErrors: Record<string, string> = {}
+    for (const issue of issues) {
+      const key = issue.path[0]
+      if (typeof key === 'string' && !fieldErrors[key]) fieldErrors[key] = issue.message
+    }
+    return { error: issues[0]?.message ?? 'Invalid input.', fieldErrors }
   }
-  return error instanceof Error ? error.message : 'Something went wrong.'
+  return { error: error instanceof Error ? error.message : 'Something went wrong.' }
 }
 
 function optional(value: FormDataEntryValue | null) {
@@ -68,7 +73,7 @@ export async function loginAction(_prev: ActionState, formData: FormData): Promi
     const next = formData.get('next')
     if (typeof next === 'string' && next.startsWith('/admin')) target = next
   } catch (error) {
-    return { error: firstError(error) }
+    return parseError(error)
   }
   redirect(target)
 }
@@ -132,7 +137,7 @@ export async function saveStudentAction(
       `${session.name} ${id ? 'updated' : 'added'} ${student.fullName}`,
     )
   } catch (error) {
-    return { error: firstError(error) }
+    return parseError(error)
   }
 
   revalidatePath('/admin/students')
@@ -160,7 +165,10 @@ export async function saveEvaluationAction(
     const parsed = evaluationSchema.parse(Object.fromEntries(formData))
 
     if (parsed.score > parsed.maxScore) {
-      return { error: 'Score cannot be higher than the maximum score.' }
+      return {
+        error: 'Score cannot be higher than the maximum score.',
+        fieldErrors: { score: 'Cannot be higher than the max score.' },
+      }
     }
 
     const [category] = await sql<Category[]>`SELECT * FROM "Category" WHERE id = ${parsed.categoryId}`
@@ -188,7 +196,7 @@ export async function saveEvaluationAction(
       `${session.name} scored ${student.fullName}: ${evaluation.title} (${evaluation.score}/${evaluation.maxScore})`,
     )
   } catch (error) {
-    return { error: firstError(error) }
+    return parseError(error)
   }
 
   revalidatePath('/admin/evaluations')
@@ -245,7 +253,7 @@ export async function saveCategoryAction(
 
     await log(session.sub, id ? 'UPDATE' : 'CREATE', 'Category', category.id, `${session.name} saved metric ${category.name}`)
   } catch (error) {
-    return { error: firstError(error) }
+    return parseError(error)
   }
 
   revalidatePath('/admin/settings')
@@ -283,7 +291,7 @@ export async function saveRoleAction(_prev: ActionState, formData: FormData): Pr
 
     await log(session.sub, id ? 'UPDATE' : 'CREATE', 'Role', role.id, `${session.name} saved role ${role.name}`)
   } catch (error) {
-    return { error: firstError(error) }
+    return parseError(error)
   }
 
   revalidatePath('/admin/settings')
@@ -331,7 +339,7 @@ export async function saveCycleAction(_prev: ActionState, formData: FormData): P
 
     await log(session.sub, id ? 'UPDATE' : 'CREATE', 'Cycle', cycle.id, `${session.name} saved cycle ${cycle.name}`)
   } catch (error) {
-    return { error: firstError(error) }
+    return parseError(error)
   }
 
   revalidatePath('/admin/settings')

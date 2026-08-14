@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import { SearchX } from 'lucide-react'
 import { Avatar } from '@/components/Avatar'
+import { ColorBadge } from '@/components/ColorBadge'
 import { RankBadge } from '@/components/RankBadge'
 import type { LeaderboardRow } from '@/lib/leaderboard'
-import { departmentLabel, formatNumber } from '@/lib/utils'
+import { departmentLabel, formatNumber, pluralize } from '@/lib/utils'
 
 export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
   if (rows.length === 0) {
@@ -24,7 +25,7 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
       <div className="table-wrap hidden md:block">
         <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="sticky top-16 z-10 border-b border-surface-border bg-surface-muted text-left backdrop-blur-sm">
+            <tr className="border-b border-surface-border bg-surface-muted text-left">
               <th scope="col" className="w-20 px-4 py-3 font-semibold text-squid/70">
                 Rank
               </th>
@@ -71,21 +72,19 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
                 </td>
                 <td className="px-4 py-3">
                   {row.roleName ? (
-                    <span
-                      className="badge"
-                      style={{
-                        backgroundColor: `${row.roleColor}1A`,
-                        color: row.roleColor ?? undefined,
-                      }}
-                    >
-                      {row.roleName}
-                    </span>
+                    <ColorBadge color={row.roleColor}>{row.roleName}</ColorBadge>
                   ) : (
-                    <span className="text-xs text-squid/40">Unassigned</span>
+                    <span className="text-xs text-squid/60">Unassigned</span>
                   )}
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex h-2 w-40 overflow-hidden rounded-full bg-surface-muted">
+                  <div
+                    className="flex h-2 w-40 overflow-hidden rounded-full bg-surface-muted"
+                    role="img"
+                    aria-label={row.breakdown
+                      .map((bucket) => `${bucket.name}: ${formatNumber(bucket.points)} points`)
+                      .join(', ')}
+                  >
                     {row.breakdown.map((bucket) => (
                       <span
                         key={bucket.categoryId}
@@ -122,7 +121,7 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold text-squid">{row.fullName}</p>
                 <p className="truncate text-xs text-squid/50">
-                  {row.roleName ?? 'Unassigned'} · {row.evaluationCount} evaluations
+                  {row.roleName ?? 'Unassigned'} · {pluralize(row.evaluationCount, 'evaluation')}
                 </p>
               </div>
               <div className="text-right">

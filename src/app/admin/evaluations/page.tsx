@@ -34,13 +34,19 @@ export default async function AdminEvaluationsPage(
   }
 
   return (
-    <div className="container-page py-8">
-      <h1 className="flex items-center justify-center gap-2 text-center text-2xl font-bold text-squid">
-        <ClipboardList className="h-6 w-6 text-smile" aria-hidden />
-        Evaluations
+    <div className="container-page max-w-3xl py-8">
+      <h1 className="flex items-center gap-2.5 text-2xl font-bold text-squid">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-smile/10 text-smile">
+          <ClipboardList className="h-5 w-5" aria-hidden />
+        </span>
+        Record an evaluation
       </h1>
+      <p className="mt-2 text-sm text-squid/60">
+        Score a builder against a metric with a written justification. Every entry is logged with
+        your name and the date.
+      </p>
 
-      <div className="mt-6 mx-auto max-w-3xl">
+      <div className="mt-6">
         <EvaluationForm
           students={students}
           categories={categories}
