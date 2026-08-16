@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { randomUUID } from 'crypto'
 import bcrypt from 'bcryptjs'
 import postgres from 'postgres'
@@ -33,9 +34,16 @@ function slugify(value: string) {
 }
 
 async function main() {
-  const email = process.env.SEED_ADMIN_EMAIL ?? 'aws@gmail.com'
-  const password = process.env.SEED_ADMIN_PASSWORD ?? 'aws@1234'
-  const name = process.env.SEED_ADMIN_NAME ?? 'Zakwan Mustafa'
+  const email = process.env.SEED_ADMIN_EMAIL
+  const password = process.env.SEED_ADMIN_PASSWORD
+  const name = process.env.SEED_ADMIN_NAME ?? 'Program Lead'
+
+  if (!email || !password) {
+    throw new Error('SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD must be set — refusing to create an admin with a default password.')
+  }
+  if (password.length < 8) {
+    throw new Error('SEED_ADMIN_PASSWORD must be at least 8 characters.')
+  }
 
   const [admin] = await sql`
     INSERT INTO "AdminUser" (id, email, name, role, "passwordHash", "isActive", "createdAt", "updatedAt")

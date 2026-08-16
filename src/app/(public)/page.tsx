@@ -17,10 +17,17 @@ import {
 type SearchParams = { cycle?: string; role?: string; category?: string; q?: string }
 
 async function Board({ searchParams }: { searchParams: SearchParams }) {
-  const [cycles, roles, categories] = await Promise.all([getCycles(), getRoles(), getCategories()])
+  // getActiveCycle doesn't depend on cycles/roles/categories, so it joins the
+  // same round trip instead of waiting behind it.
+  const [cycles, roles, categories, fallbackActiveCycle] = await Promise.all([
+    getCycles(),
+    getRoles(),
+    getCategories(),
+    searchParams.cycle ? Promise.resolve(null) : getActiveCycle(),
+  ])
   const activeCycle = searchParams.cycle
     ? cycles.find((cycle) => cycle.id === searchParams.cycle)
-    : await getActiveCycle()
+    : fallbackActiveCycle
 
   const [rows, stats] = await Promise.all([
     getLeaderboard({

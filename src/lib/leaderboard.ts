@@ -101,7 +101,9 @@ async function fetchLeaderboard(filters: LeaderboardFilters): Promise<Leaderboar
 
   const like = filters.search ? `%${filters.search}%` : null
 
-  const students = await sql<StudentWithRole[]>`
+  // Independent of each other — run concurrently instead of round-tripping twice.
+  const [students, evaluations] = await Promise.all([
+    sql<StudentWithRole[]>`
     SELECT s.id, s."fullName", s.email, s.department,
            ranked.role_id as "roleId", ranked.role_name as "roleName", ranked.role_color as "roleColor"
     FROM "Student" s
@@ -124,15 +126,15 @@ async function fetchLeaderboard(filters: LeaderboardFilters): Promise<Leaderboar
             )`
           : sql``
       }
-  `
-
-  const evaluations = await sql<EvaluationWithCategory[]>`
+    `,
+    sql<EvaluationWithCategory[]>`
     SELECT e.*, c.name as "categoryName", c.slug as "categorySlug", c.color as "categoryColor", c.weight as "categoryWeight"
     FROM "Evaluation" e
     JOIN "Category" c ON c.id = e."categoryId"
     WHERE e."cycleId" = ${cycle.id}
     ${filters.categorySlug ? sql`AND c.slug = ${filters.categorySlug}` : sql``}
-  `
+    `,
+  ])
 
   const evaluationsByStudent = new Map<string, EvaluationWithCategory[]>()
   for (const evaluation of evaluations) {

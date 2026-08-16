@@ -1,4 +1,4 @@
-import { ClipboardList } from 'lucide-react'
+import { ClipboardList, Download } from 'lucide-react'
 import { EvaluationForm } from '@/components/EvaluationForm'
 import { sql } from '@/lib/db'
 import { getCategories, getCycles } from '@/lib/leaderboard'
@@ -33,18 +33,30 @@ export default async function AdminEvaluationsPage(
     )
   }
 
+  const activeCycle = cycles.find((cycle) => cycle.isActive) ?? cycles[0]
+
   return (
     <div className="container-page max-w-3xl py-8">
-      <h1 className="flex items-center gap-2.5 text-2xl font-bold text-squid">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-smile/10 text-smile">
-          <ClipboardList className="h-5 w-5" aria-hidden />
-        </span>
-        Record an evaluation
-      </h1>
-      <p className="mt-2 text-sm text-squid/60">
-        Score a builder against a metric with a written justification. Every entry is logged with
-        your name and the date.
-      </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="flex items-center gap-2.5 text-2xl font-bold text-squid">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-smile/10 text-smile">
+              <ClipboardList className="h-5 w-5" aria-hidden />
+            </span>
+            Record an evaluation
+          </h1>
+          <p className="mt-2 text-sm text-squid/60">
+            Score a builder against a metric with a written justification. Every entry is logged with
+            your name and the date.
+          </p>
+        </div>
+        {activeCycle ? (
+          <a className="btn-secondary" href={`/api/export/evaluations?cycleId=${activeCycle.id}`}>
+            <Download className="h-4 w-4" aria-hidden />
+            Export CSV
+          </a>
+        ) : null}
+      </div>
 
       <div className="mt-6">
         <EvaluationForm

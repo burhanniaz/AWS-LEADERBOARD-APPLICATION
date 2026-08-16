@@ -9,8 +9,12 @@ import { formatNumber } from '@/lib/utils'
 export const metadata = { title: 'Insights' }
 
 async function Insights({ cycleId }: { cycleId?: string }) {
-  const cycles = await getCycles()
-  const cycle = cycleId ? cycles.find((item) => item.id === cycleId) : await getActiveCycle()
+  const [cycles, categories, fallbackActiveCycle] = await Promise.all([
+    getCycles(),
+    getCategories(),
+    cycleId ? Promise.resolve(null) : getActiveCycle(),
+  ])
+  const cycle = cycleId ? cycles.find((item) => item.id === cycleId) : fallbackActiveCycle
   if (!cycle) {
     return (
       <div className="card card-pad text-sm text-squid/60">
@@ -19,7 +23,6 @@ async function Insights({ cycleId }: { cycleId?: string }) {
     )
   }
 
-  const categories = await getCategories()
   const overall = await getLeaderboard({ cycleId: cycle.id })
   const scoredOverall = overall.filter((row) => row.evaluationCount > 0)
   const perCategory = categories.map((category) => ({
@@ -103,17 +106,12 @@ async function Insights({ cycleId }: { cycleId?: string }) {
       <section className="card card-pad mt-6">
         <h2 className="text-lg font-bold text-squid">Export this cycle</h2>
         <p className="mt-1 max-w-2xl text-sm text-squid/70">
-          Download the full record — every evaluation with its score, reason, evaluator and date.
-          This export is the raw material for next session&apos;s selection guidelines.
+          Download the public leaderboard standings for this cycle.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <a className="btn-secondary" href={`/api/export/leaderboard?cycleId=${cycle.id}`}>
             <Download className="h-4 w-4" aria-hidden />
             Leaderboard CSV
-          </a>
-          <a className="btn-secondary" href={`/api/export/evaluations?cycleId=${cycle.id}`}>
-            <Download className="h-4 w-4" aria-hidden />
-            Evaluations CSV
           </a>
         </div>
       </section>

@@ -180,7 +180,7 @@ export function EvaluationForm({
         <div className="flex items-center justify-between">
           <SectionHeading step={2} title="Score" />
           <span className={cn('rounded-full px-2.5 py-1 text-xs font-bold tabular-nums', qualityTone)}>
-            {quality}% quality
+            {quality}% percent
           </span>
         </div>
         <div className="grid grid-cols-2 gap-5">

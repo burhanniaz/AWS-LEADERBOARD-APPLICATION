@@ -1,7 +1,7 @@
 'use client'
 
 import { AlertCircle, CheckCircle2, X } from 'lucide-react'
-import { createContext, useCallback, useContext, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
 
 type Toast = { id: number; message: string; type: 'success' | 'error' }
 type ToastContextValue = { push: (message: string, type?: Toast['type']) => void }
@@ -39,8 +39,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     [schedule],
   )
 
+  const value = useMemo(() => ({ push }), [push])
+
   return (
-    <ToastContext.Provider value={{ push }}>
+    <ToastContext.Provider value={value}>
       {children}
       <div className="pointer-events-none fixed inset-x-0 bottom-4 z-[100] flex flex-col items-center gap-2 px-4 sm:items-end sm:right-4 sm:left-auto">
         {toasts.map((toast) => (

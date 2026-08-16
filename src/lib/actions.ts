@@ -33,6 +33,18 @@ function parseError(error: unknown): { error: string; fieldErrors?: Record<strin
     }
     return { error: issues[0]?.message ?? 'Invalid input.', fieldErrors }
   }
+  // Postgres unique_violation — surface a readable message instead of the raw
+  // constraint name, and point it at the offending field when we can tell.
+  if (error && typeof error === 'object' && 'code' in error && error.code === '23505') {
+    const constraint = 'constraint_name' in error ? String(error.constraint_name) : ''
+    if (constraint.includes('email')) {
+      return {
+        error: 'That email address is already registered to another builder.',
+        fieldErrors: { email: 'Already in use.' },
+      }
+    }
+    return { error: 'That value is already in use.' }
+  }
   return { error: error instanceof Error ? error.message : 'Something went wrong.' }
 }
 

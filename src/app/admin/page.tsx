@@ -10,9 +10,13 @@ export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Admin overview' }
 
 async function Overview() {
-  const cycle = await getActiveCycle()
-  const [[{ count: students }], [{ count: evaluations }], [{ count: unscored }]] = await Promise.all([
+  // getActiveCycle is independent of the student count, so it joins the same
+  // round trip instead of waiting behind it.
+  const [cycle, [{ count: students }]] = await Promise.all([
+    getActiveCycle(),
     sql<{ count: number }[]>`SELECT COUNT(*)::int as count FROM "Student" WHERE status = 'ACTIVE'`,
+  ])
+  const [[{ count: evaluations }], [{ count: unscored }]] = await Promise.all([
     cycle
       ? sql<{ count: number }[]>`SELECT COUNT(*)::int as count FROM "Evaluation" WHERE "cycleId" = ${cycle.id}`
       : Promise.resolve([{ count: 0 }]),

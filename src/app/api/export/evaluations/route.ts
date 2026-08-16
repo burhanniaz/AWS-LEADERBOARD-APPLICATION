@@ -1,6 +1,7 @@
 import { csvResponse, toCsv } from '@/lib/csv'
 import { sql } from '@/lib/db'
 import { getActiveCycle } from '@/lib/leaderboard'
+import { readSession } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +20,9 @@ type ExportRow = {
 }
 
 export async function GET(request: Request) {
+  const session = await readSession()
+  if (!session) return new Response('Unauthorized', { status: 401 })
+
   const { searchParams } = new URL(request.url)
   const cycleId = searchParams.get('cycleId') ?? (await getActiveCycle())?.id
   if (!cycleId) return new Response('No cycle found', { status: 404 })
