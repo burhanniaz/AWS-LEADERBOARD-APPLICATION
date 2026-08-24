@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import { ExternalLink, LogOut } from 'lucide-react'
 import { AdminMobileNav, AdminNavLinks } from '@/components/AdminNavLinks'
-import { BrandLock } from '@/components/Brand'
-import { ThemeToggle } from '@/components/ThemeToggle'
+import { AppRail } from '@/components/AppRail'
+import { TopBar } from '@/components/TopBar'
 import { logoutAction } from '@/lib/actions'
 import { requireAdmin } from '@/lib/guard'
 
@@ -10,40 +10,47 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const session = await requireAdmin()
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="glow-field relative sticky top-0 z-40 bg-header/95 text-white backdrop-blur-md shadow-raised">
-        <div className="container-page flex h-16 items-center justify-between gap-4">
-          <BrandLock href="/admin" />
-          <div className="flex items-center gap-2">
-            <Link
-              href="/"
-              className="hidden items-center gap-1.5 text-sm text-white/70 transition-colors hover:text-white sm:flex"
-            >
-              <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-              View public board
-            </Link>
-            <span className="hidden text-sm text-white/50 md:block">{session.name}</span>
-            <ThemeToggle />
-            <form action={logoutAction}>
-              <button
-                className="flex h-9 items-center gap-1.5 rounded-md border border-white/20 px-2.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 sm:px-3"
-                aria-label="Sign out"
+    <div className="flex min-h-screen">
+      <AppRail isAuthed userName={session.name} />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <TopBar
+          title="Admin"
+          pill={session.name}
+          isAuthed
+          userName={session.name}
+          mobileNav={<AdminMobileNav />}
+          actions={
+            <div className="flex items-center gap-2">
+              <Link
+                href="/"
+                className="hidden items-center gap-1.5 text-sm text-squid/60 transition-colors hover:text-squid sm:flex"
               >
-                <LogOut className="h-3.5 w-3.5" aria-hidden />
-                <span className="hidden sm:inline">Sign out</span>
-              </button>
-            </form>
-            <AdminMobileNav />
-          </div>
-        </div>
-        <nav className="hidden border-t border-white/10 md:block">
-          <div className="container-page flex gap-1 py-1 text-sm">
-            <AdminNavLinks />
-          </div>
-        </nav>
-      </header>
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                View public board
+              </Link>
+              <form action={logoutAction}>
+                <button
+                  className="flex h-9 items-center gap-1.5 rounded-md border border-surface-border px-2.5 text-sm font-medium text-squid/70 transition-colors hover:bg-squid/10 hover:text-squid sm:px-3"
+                  aria-label="Sign out"
+                >
+                  <LogOut className="h-3.5 w-3.5" aria-hidden />
+                  <span className="hidden sm:inline">Sign out</span>
+                </button>
+              </form>
+            </div>
+          }
+          below={
+            <nav
+              aria-label="Admin sections"
+              className="container-page hidden gap-1 py-1 text-sm md:flex"
+            >
+              <AdminNavLinks />
+            </nav>
+          }
+        />
 
-      <main className="flex-1 pb-16">{children}</main>
+        <main className="flex-1 pb-16">{children}</main>
+      </div>
     </div>
   )
 }

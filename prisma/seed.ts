@@ -15,11 +15,11 @@ const ROLES = [
 ]
 
 const CATEGORIES = [
-  { name: 'Skills', slug: 'skills', weight: 1.5, maxScore: 10, order: 10, color: '#0972D3', icon: 'skills', description: 'Demonstrated technical ability on AWS and general engineering.' },
-  { name: 'Training', slug: 'training', weight: 1.2, maxScore: 10, order: 20, color: '#00A1C9', icon: 'training', description: 'Courses, certifications and learning paths completed.' },
-  { name: 'Workshops', slug: 'workshops', weight: 1.0, maxScore: 10, order: 30, color: '#FF9900', icon: 'workshop', description: 'Attendance, delivery and hands-on lab performance.' },
-  { name: 'Contribution', slug: 'contribution', weight: 1.3, maxScore: 10, order: 40, color: '#037F0C', icon: 'contribution', description: 'Pull requests, projects, docs and other shipped work.' },
-  { name: 'Leadership', slug: 'leadership', weight: 1.4, maxScore: 10, order: 50, color: '#8C4FFF', icon: 'leadership', description: 'Ownership, initiative and support for other members.' },
+  { name: 'Skills', slug: 'skills', weight: 1.5, maxScore: 10, order: 10, color: '#2E72B5', icon: 'skills', description: 'Demonstrated technical ability on AWS and general engineering.' },
+  { name: 'Training', slug: 'training', weight: 1.2, maxScore: 10, order: 20, color: '#1F8F76', icon: 'training', description: 'Courses, certifications and learning paths completed.' },
+  { name: 'Workshops', slug: 'workshops', weight: 1.0, maxScore: 10, order: 30, color: '#B98A1E', icon: 'workshop', description: 'Attendance, delivery and hands-on lab performance.' },
+  { name: 'Contribution', slug: 'contribution', weight: 1.3, maxScore: 10, order: 40, color: '#2E8F55', icon: 'contribution', description: 'Pull requests, projects, docs and other shipped work.' },
+  { name: 'Leadership', slug: 'leadership', weight: 1.4, maxScore: 10, order: 50, color: '#7C5FC4', icon: 'leadership', description: 'Ownership, initiative and support for other members.' },
 ]
 
 const SKILLS = [

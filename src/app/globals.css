@@ -3,39 +3,58 @@
 @tailwind utilities;
 
 @layer base {
+  /* "Builder Console" — warm glass in light mode, matte ink console in dark.
+     Both themes share AWS orange as the single accent; the ink band
+     (--color-header) is deliberately identical in both so the rail and login
+     hero read as one fixed brand surface. */
   :root {
-    --font-sans: 'Inter', 'Amazon Ember', system-ui, sans-serif;
+    --font-sans: 'Plus Jakarta Sans', 'Amazon Ember', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    /* The console uses one family throughout — headings are Jakarta at 800.
+       Kept as its own var so existing `font-heading` call sites still resolve
+       (a dangling var would invalidate the whole font-family declaration). */
+    --font-heading: var(--font-sans);
 
     /* Light theme surface tokens (RGB triplets so Tailwind's <alpha-value> works) */
-    --color-squid: 27 14 51; /* body text — deep violet ink */
-    --color-surface: 255 255 255; /* card background */
-    --color-surface-muted: 245 242 250; /* page background */
-    --color-surface-border: 225 217 240;
-    --color-header: 27 14 51; /* header/footer brand band */
-    --color-smile: 123 94 167; /* accent */
-    --color-smile-dark: 90 62 158;
-    --color-smile-light: 159 132 212;
-    --color-aws-blue: 139 92 246; /* links / focus rings */
-    --color-aws-green: 3 127 12;
-    --color-aws-red: 217 21 21;
+    --color-squid: 36 28 18; /* body text — warm near-black */
+    --color-surface: 255 255 255; /* card background (used with /60 + blur, see .card) */
+    --color-surface-muted: 244 237 226; /* page background — warm cream */
+    --color-surface-border: 224 214 200;
+    --color-header: 18 13 9; /* ink band — same in both themes */
+    --color-smile: 255 153 0; /* accent — AWS orange */
+    --color-smile-dark: 200 96 0; /* darker, for gradients/hover in light mode */
+    --color-smile-light: 255 203 128;
+    --color-aws-blue: 46 114 181; /* links / focus rings */
+    --color-aws-green: 31 157 92;
+    --color-aws-red: 214 72 58;
+
+    /* Glass: light cards float translucent over the warm page glow. */
+    --card-alpha: 0.6;
+
+    /* Page glow — warm blooms behind the cream background. */
+    --page-glow-a: 0.1;
+    --page-glow-b: 0.07;
+    --page-glow-c: 0.05;
   }
 
-  /* Dark theme — "AWS Slate": deep AWS-console navy instead of a dimmed
-     violet, with AWS orange as the one primary accent (badges, buttons,
-     rank-1) and a cooler blue reserved for links/focus so the whole screen
-     doesn't turn orange. */
   .dark {
-    --color-squid: 234 242 251; /* body text — cool near-white */
-    --color-surface: 19 36 55; /* card background — one step up from page */
-    --color-surface-muted: 11 21 33; /* page background */
-    --color-surface-border: 37 65 92; /* steel-blue, not neutral grey */
-    --color-header: 8 16 25; /* header/footer band — darker than cards */
-    --color-smile: 255 153 0; /* accent — AWS orange */
+    --color-squid: 245 240 232;
+    --color-surface: 27 20 15;
+    --color-surface-muted: 18 13 9;
+    --color-surface-border: 42 33 24;
+    --color-header: 18 13 9;
+    --color-smile: 255 153 0;
     --color-smile-dark: 204 122 0;
     --color-smile-light: 255 184 77;
-    --color-aws-blue: 41 182 246; /* links / focus rings — kept distinct from the orange accent */
-    --color-aws-green: 74 222 128;
-    --color-aws-red: 248 113 113;
+    --color-aws-blue: 79 163 227;
+    --color-aws-green: 56 199 126;
+    --color-aws-red: 255 107 91;
+
+    /* Dark mode stays opaque and matte — no glass, no page glow. */
+    --card-alpha: 1;
+    --page-glow-a: 0;
+    --page-glow-b: 0;
+    --page-glow-c: 0;
   }
 
   html {
@@ -49,6 +68,13 @@
 
   body {
     @apply bg-surface-muted text-squid antialiased transition-colors duration-200;
+    /* Soft warm blooms over the cream page. The alphas are theme-aware vars
+       that fall to 0 in dark mode, so this single rule covers both themes. */
+    background-image:
+      radial-gradient(900px 600px at 12% -10%, rgb(var(--color-smile) / var(--page-glow-a)), transparent 70%),
+      radial-gradient(700px 500px at 88% 8%, rgb(var(--color-smile-light) / var(--page-glow-b)), transparent 70%),
+      radial-gradient(800px 700px at 50% 100%, rgb(var(--color-smile-dark) / var(--page-glow-c)), transparent 72%);
+    background-attachment: fixed;
   }
 
   *:focus-visible {
@@ -61,8 +87,19 @@
     @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
+  /* Frosted glass in light mode; the `.dark` override below drops the blur
+     entirely (rather than blurring by 0px) so dark cards stay matte and don't
+     pay for a needless compositing layer. */
   .card {
-    @apply rounded-xl border border-surface-border bg-surface shadow-card transition-colors duration-200;
+    @apply rounded-2xl border border-surface-border shadow-card transition-colors duration-200;
+    background-color: rgb(var(--color-surface) / var(--card-alpha));
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+    backdrop-filter: blur(24px) saturate(150%);
+  }
+
+  .dark .card {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 
   .card-pad {

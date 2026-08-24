@@ -64,7 +64,7 @@ export function Podium({ rows }: { rows: LeaderboardRow[] }) {
             <Avatar name={row.fullName} size={rank === 1 ? 'xl' : 'lg'} className={style.ring} />
             <p className="mt-3 truncate font-semibold text-squid">{row.fullName}</p>
             <p className="truncate text-xs text-squid/50">{row.roleName ?? 'Unassigned'}</p>
-            <p className="mt-2 text-2xl font-bold tabular-nums text-squid">
+            <p className="mt-2 font-mono text-2xl font-bold tabular-nums text-squid">
               {formatNumber(row.totalPoints)}
               <span className="ml-1 text-xs font-medium text-squid/50">pts</span>
             </p>

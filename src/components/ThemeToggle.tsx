@@ -3,7 +3,22 @@
 import { Moon, Sun } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-export function ThemeToggle({ className = '' }: { className?: string }) {
+/**
+ * `ink` sits on the dark brand band (the rail), `surface` on a theme-flipping
+ * background (the top bar on mobile, where the rail is hidden).
+ */
+const TONES = {
+  ink: 'text-white/80 hover:bg-white/10 hover:text-white',
+  surface: 'text-squid/70 hover:bg-squid/10 hover:text-squid',
+}
+
+export function ThemeToggle({
+  className = '',
+  tone = 'ink',
+}: {
+  className?: string
+  tone?: keyof typeof TONES
+}) {
   const [isDark, setIsDark] = useState(false)
 
   useEffect(() => {
@@ -26,7 +41,7 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
       onClick={toggle}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-white/80 transition-colors hover:bg-white/10 hover:text-white ${className}`}
+      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md transition-colors ${TONES[tone]} ${className}`}
     >
       {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
     </button>

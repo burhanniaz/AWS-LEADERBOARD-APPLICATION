@@ -6,18 +6,18 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Chip-logo brand palette — deep violet ink + purple accent glow
-        // `ink` is the brand-fixed dark violet surface (header/footer/login),
-        // identical in both themes. `squid` is body text/ui-ink and flips via
-        // CSS variables so it stays legible in dark mode.
+        // Builder Console palette — warm ink + AWS orange accent.
+        // `ink` is the brand-fixed dark surface (rail/footer/login), identical
+        // in both themes. `squid` is body text/ui-ink and flips via CSS
+        // variables so it stays legible in dark mode.
         ink: {
-          DEFAULT: '#1B0E33',
-          dark: '#100821',
+          DEFAULT: '#120D09',
+          dark: '#0A0705',
         },
         squid: {
           DEFAULT: 'rgb(var(--color-squid) / <alpha-value>)',
-          light: '#2C1B4D',
-          dark: '#100821',
+          light: '#3D3020',
+          dark: '#0A0705',
         },
         smile: {
           DEFAULT: 'rgb(var(--color-smile) / <alpha-value>)', // primary accent
@@ -42,11 +42,12 @@ const config: Config = {
       fontFamily: {
         sans: ['var(--font-sans)', 'Amazon Ember', 'system-ui', 'sans-serif'],
         heading: ['var(--font-heading)', 'var(--font-sans)', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
       },
       boxShadow: {
-        card: '0 1px 4px rgba(27, 14, 51, 0.10)',
-        raised: '0 4px 16px rgba(27, 14, 51, 0.14)',
-        glow: '0 8px 24px rgba(123, 94, 167, 0.35)',
+        card: '0 1px 4px rgba(18, 13, 9, 0.10)',
+        raised: '0 4px 16px rgba(18, 13, 9, 0.14)',
+        glow: '0 8px 24px rgba(255, 153, 0, 0.35)',
       },
       keyframes: {
         'fade-up': {

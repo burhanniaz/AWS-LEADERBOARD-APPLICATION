@@ -98,8 +98,8 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
                     ))}
                   </div>
                 </td>
-                <td className="px-4 py-3 text-right tabular-nums text-squid/70">{row.quality}%</td>
-                <td className="px-4 py-3 text-right text-base font-bold tabular-nums text-squid">
+                <td className="px-4 py-3 text-right font-mono tabular-nums text-squid/70">{row.quality}%</td>
+                <td className="px-4 py-3 text-right font-mono text-base font-bold tabular-nums text-squid">
                   {formatNumber(row.totalPoints)}
                 </td>
               </tr>
@@ -125,7 +125,7 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-lg font-bold tabular-nums text-squid">
+                <p className="font-mono text-lg font-bold tabular-nums text-squid">
                   {formatNumber(row.totalPoints)}
                 </p>
                 <p className="text-xs text-squid/50">{row.quality}%</p>

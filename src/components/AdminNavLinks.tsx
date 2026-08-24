@@ -32,7 +32,9 @@ export function AdminNavLinks() {
             href={item.href}
             className={cn(
               'flex items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-2 font-medium transition-colors',
-              active ? 'bg-white/15 text-white' : 'text-white/70 hover:bg-white/10 hover:text-white',
+              active
+                ? 'bg-smile/15 text-smile'
+                : 'text-squid/60 hover:bg-squid/10 hover:text-squid',
             )}
           >
             <Icon className="h-4 w-4" aria-hidden />
@@ -55,7 +57,7 @@ export function AdminMobileNav() {
         onClick={() => setOpen((value) => !value)}
         aria-label={open ? 'Close menu' : 'Open menu'}
         aria-expanded={open}
-        className="flex h-9 w-9 items-center justify-center rounded-md text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+        className="flex h-9 w-9 items-center justify-center rounded-md text-squid/70 transition-colors hover:bg-squid/10 hover:text-squid"
       >
         {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
