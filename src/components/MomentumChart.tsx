@@ -98,7 +98,7 @@ export function MomentumChart({
   if (dates.length === 0) {
     return (
       <ChartShell cycleName={cycleName} metric={metric} setMetric={setMetric} range={range} setRange={setRange} legend={[]}>
-        <div className="flex h-[200px] items-center justify-center text-sm text-squid/45">
+        <div className="flex min-h-[200px] flex-1 items-center justify-center text-sm text-squid/45">
           No evaluations recorded in this cycle yet.
         </div>
       </ChartShell>
@@ -120,9 +120,10 @@ export function MomentumChart({
       setRange={setRange}
       legend={trimmed.map((s, i) => ({ name: s.fullName, color: seriesStyle(i).color }))}
     >
+      <div className="relative min-h-[200px] flex-1">
       <svg
         viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
-        className="h-[200px] w-full"
+        className="absolute inset-0 h-full w-full"
         preserveAspectRatio="none"
         role="img"
         aria-label={`${METRICS.find((m) => m.key === metric)!.label} over ${cycleName} for ${new Intl.ListFormat(
@@ -193,6 +194,7 @@ export function MomentumChart({
           )
         })}
       </svg>
+      </div>
 
       <div className="mt-2 flex justify-between font-mono text-[10px] text-squid/35">
         <span>{formatDay(dates[0])}</span>
@@ -228,7 +230,7 @@ function ChartShell({
   children: React.ReactNode
 }) {
   return (
-    <section className="card card-pad">
+    <section className="card card-pad flex h-full flex-col">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="font-bold text-squid">Cohort momentum</h2>
@@ -295,7 +297,10 @@ function ChartShell({
         ))}
       </div>
 
-      <div className="mt-4">{children}</div>
+      {/* The plot region is pinned to 60% of the card; the metric controls
+          above take the rest. `h-3/5` resolves against the card, which has a
+          definite height from the stretched grid row. */}
+      <div className="mt-4 flex h-3/5 flex-col">{children}</div>
     </section>
   )
 }

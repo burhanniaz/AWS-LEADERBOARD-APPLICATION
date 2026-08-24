@@ -108,7 +108,7 @@ async function Board({ searchParams }: { searchParams: SearchParams }) {
         />
       </section>
 
-      <section className="mt-6 grid gap-4 lg:grid-cols-3">
+      <section className="mt-6 grid items-stretch gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <MomentumChart series={momentum} cycleName={activeCycle?.name ?? 'this cycle'} />
         </div>
