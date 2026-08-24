@@ -30,6 +30,11 @@ export function Podium({ rows }: { rows: LeaderboardRow[] }) {
           <Link
             key={row.studentId}
             href={`/students/${row.studentId}`}
+            // The podium winners are the most-clicked profiles on the board, so
+            // prefetch their full profile (data included). The rest of the
+            // table stays on the default shell-only prefetch to avoid firing a
+            // profile fetch for every visible row.
+            prefetch
             className={cn(
               'card card-pad group flex animate-scale-in flex-col items-center text-center transition-shadow hover:shadow-raised',
               style.order,

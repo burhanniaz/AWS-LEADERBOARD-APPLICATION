@@ -36,7 +36,11 @@ async function Board({ searchParams }: { searchParams: SearchParams }) {
     ? cycles.find((cycle) => cycle.id === searchParams.cycle)
     : fallbackActiveCycle
 
-  const [rows, stats] = await Promise.all([
+  // stats and recent only need the cycle id, not the computed ranking, so they
+  // run alongside the leaderboard rather than waiting behind it. Only the
+  // momentum chart genuinely depends on the ranking (it charts the top five),
+  // so it's the single query left on the critical path.
+  const [rows, stats, recent] = await Promise.all([
     getLeaderboard({
       cycleId: activeCycle?.id,
       roleSlug: searchParams.role,
@@ -53,23 +57,19 @@ async function Board({ searchParams }: { searchParams: SearchParams }) {
           perBuilder: 0,
           averageQuality: 0,
         }),
+    activeCycle ? getRecentEvaluations(activeCycle.id, 3) : Promise.resolve([]),
   ])
 
   const top = rows[0]
   const scored = rows.filter((row) => row.evaluationCount > 0)
   const qualities = scored.map((row) => row.quality)
 
-  // The momentum chart and recent feed both depend on the ranking above, so they
-  // can only be issued once it resolves — but they don't depend on each other.
-  const [momentum, recent] = await Promise.all([
-    activeCycle
-      ? getMomentum(
-          activeCycle.id,
-          scored.slice(0, 5).map((row) => row.studentId),
-        )
-      : Promise.resolve([]),
-    activeCycle ? getRecentEvaluations(activeCycle.id, 3) : Promise.resolve([]),
-  ])
+  const momentum = activeCycle
+    ? await getMomentum(
+        activeCycle.id,
+        scored.slice(0, 5).map((row) => row.studentId),
+      )
+    : []
 
   return (
     <>

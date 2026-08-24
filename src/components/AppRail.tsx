@@ -40,6 +40,12 @@ export function AppRail({ isAuthed, userName }: { isAuthed: boolean; userName?: 
             <Link
               key={item.href}
               href={item.href}
+              // Force a full-route prefetch (data included) for the primary
+              // tabs. They're the most likely next navigation, and the data
+              // behind them is already cached server-side, so warming them
+              // client-side makes switching tabs land instantly instead of
+              // showing a skeleton while the server streams the page.
+              prefetch
               title={item.label}
               aria-label={item.label}
               aria-current={active ? 'page' : undefined}

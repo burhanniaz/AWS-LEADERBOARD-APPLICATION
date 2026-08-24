@@ -84,6 +84,9 @@ CREATE TABLE "RoleAssignment" (
 );
 CREATE INDEX ON "RoleAssignment" ("cycleId");
 CREATE INDEX ON "RoleAssignment" ("studentId");
+-- Serves the leaderboard's per-student current-role lateral join and the
+-- directory role lookup, which filter on ("studentId", "cycleId") together.
+CREATE INDEX ON "RoleAssignment" ("studentId", "cycleId");
 
 -- A scoring dimension (Skills, Training, Workshops, Leadership, Contributions...).
 -- `weight` multiplies raw scores when computing the leaderboard total.
@@ -124,6 +127,8 @@ CREATE TABLE "Evaluation" (
 CREATE INDEX ON "Evaluation" ("studentId", "cycleId");
 CREATE INDEX ON "Evaluation" ("cycleId", "categoryId");
 CREATE INDEX ON "Evaluation" ("occurredAt");
+-- Serves the "recent evaluations" feed: filter by cycle, sort by occurredAt DESC.
+CREATE INDEX ON "Evaluation" ("cycleId", "occurredAt" DESC);
 
 CREATE TABLE "Skill" (
   id         text PRIMARY KEY,

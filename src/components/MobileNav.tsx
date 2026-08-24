@@ -38,6 +38,7 @@ export function MobileNav({ isAuthed }: { isAuthed: boolean }) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  prefetch
                   onClick={() => setOpen(false)}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
