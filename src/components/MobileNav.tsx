@@ -29,7 +29,7 @@ export function MobileNav({ isAuthed }: { isAuthed: boolean }) {
       </button>
 
       {open ? (
-        <div className="absolute inset-x-0 top-16 z-40 animate-slide-down border-b border-white/10 bg-header shadow-raised supports-[backdrop-filter]:bg-header/80 supports-[backdrop-filter]:backdrop-blur-xl supports-[backdrop-filter]:backdrop-saturate-150">
+        <div className="absolute inset-x-0 top-16 z-40 animate-slide-down border-b border-white/10 bg-header shadow-raised supports-[backdrop-filter]:bg-header/55 supports-[backdrop-filter]:backdrop-blur-xl supports-[backdrop-filter]:backdrop-saturate-150">
           <nav aria-label="Primary" className="container-page flex flex-col gap-1 py-3 text-sm">
             {items.map((item) => {
               const active = isActive(pathname, item.href)

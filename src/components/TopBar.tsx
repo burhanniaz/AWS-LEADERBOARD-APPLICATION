@@ -47,7 +47,7 @@ export function TopBar({
     'Leaderboard'
 
   return (
-    <header className="sticky top-0 z-30 border-b border-surface-border bg-surface-muted dark:bg-header supports-[backdrop-filter]:bg-surface-muted/70 supports-[backdrop-filter]:backdrop-blur-xl supports-[backdrop-filter]:backdrop-saturate-150 dark:supports-[backdrop-filter]:bg-header/70">
+    <header className="sticky top-0 z-30 border-b border-surface-border bg-surface-muted dark:bg-header supports-[backdrop-filter]:bg-surface-muted/45 supports-[backdrop-filter]:backdrop-blur-xl supports-[backdrop-filter]:backdrop-saturate-150 dark:supports-[backdrop-filter]:bg-header/45">
       <div className="container-page flex h-16 items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
           {mobileNav ?? <MobileNav isAuthed={isAuthed} />}

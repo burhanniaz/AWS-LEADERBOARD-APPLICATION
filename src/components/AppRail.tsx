@@ -21,7 +21,7 @@ export function AppRail({ isAuthed, userName }: { isAuthed: boolean; userName?: 
   const items = isAuthed ? [...NAV, ADMIN_ITEM] : NAV
 
   return (
-    <aside className="sticky top-0 z-40 hidden h-screen w-[60px] shrink-0 flex-col items-center border-r border-white/10 bg-gradient-to-b from-[#4a3d30] to-[#291f17] py-4 text-white supports-[backdrop-filter]:from-[#4a3d30]/85 supports-[backdrop-filter]:to-[#291f17]/85 supports-[backdrop-filter]:backdrop-blur-xl supports-[backdrop-filter]:backdrop-saturate-150 md:flex">
+    <aside className="sticky top-0 z-40 hidden h-screen w-[60px] shrink-0 flex-col items-center border-r border-white/10 bg-gradient-to-b from-[#4a3d30] to-[#291f17] py-4 text-white supports-[backdrop-filter]:from-[#4a3d30]/45 supports-[backdrop-filter]:to-[#291f17]/45 supports-[backdrop-filter]:backdrop-blur-xl supports-[backdrop-filter]:backdrop-saturate-150 md:flex">
       <Link
         href="/"
         aria-label="AWS UET Taxila — Builder Leaderboard"
