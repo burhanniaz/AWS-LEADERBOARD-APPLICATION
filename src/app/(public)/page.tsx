@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import { BuilderSpotlight } from '@/components/BuilderSpotlight'
+import { InsightsSection } from '@/components/InsightsSection'
 import { LeaderboardFilters } from '@/components/LeaderboardFilters'
 import { LeaderboardTable } from '@/components/LeaderboardTable'
 import { MomentumChart } from '@/components/MomentumChart'
@@ -133,6 +134,18 @@ async function Board({ searchParams }: { searchParams: SearchParams }) {
         />
         <LeaderboardTable rows={rows} />
       </section>
+
+      {activeCycle ? (
+        <div className="mt-10 border-t border-surface-border pt-8">
+          <div className="mb-6 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+            <h2 className="text-2xl font-extrabold tracking-tight text-squid">Insights</h2>
+            <p className="text-sm text-squid/55">
+              Where the club is strong, where it is thin, and who leads each metric.
+            </p>
+          </div>
+          <InsightsSection cycle={activeCycle} />
+        </div>
+      ) : null}
     </>
   )
 }
