@@ -2,29 +2,19 @@ import Link from 'next/link'
 import { Crown, Medal } from 'lucide-react'
 import { Avatar } from '@/components/Avatar'
 import type { LeaderboardRow } from '@/lib/leaderboard'
-import { cn, formatNumber, RANK_COLORS } from '@/lib/utils'
+import { cn, formatNumber } from '@/lib/utils'
 
-const PODIUM_STYLE: Record<number, { order: string; lift: string; ring: string; badge: string; badgeStyle?: React.CSSProperties }> = {
+const PODIUM_STYLE: Record<number, { order: string; lift: string; ring: string; surface: string }> = {
   1: {
     order: 'sm:order-2',
     lift: 'sm:-translate-y-4',
-    ring: 'ring-4 ring-smile/50',
-    badge: 'bg-gradient-to-br from-smile to-smile-dark text-white',
+    ring: 'ring-4 ring-smile/40',
+    // The leader's card carries a warm wash and an accent border instead of a
+    // medal, so the winner reads at a glance without a third colour system.
+    surface: 'border-smile/40 bg-gradient-to-b from-smile/15 to-smile/[0.03]',
   },
-  2: {
-    order: 'sm:order-1',
-    lift: '',
-    ring: 'ring-2 ring-surface-border',
-    badge: 'text-squid',
-    badgeStyle: { backgroundColor: RANK_COLORS[2] },
-  },
-  3: {
-    order: 'sm:order-3',
-    lift: '',
-    ring: 'ring-2 ring-surface-border',
-    badge: 'text-white',
-    badgeStyle: { backgroundColor: RANK_COLORS[3] },
-  },
+  2: { order: 'sm:order-1', lift: '', ring: 'ring-2 ring-surface-border', surface: '' },
+  3: { order: 'sm:order-3', lift: '', ring: 'ring-2 ring-surface-border', surface: '' },
 }
 
 export function Podium({ rows }: { rows: LeaderboardRow[] }) {
@@ -41,32 +31,38 @@ export function Podium({ rows }: { rows: LeaderboardRow[] }) {
             key={row.studentId}
             href={`/students/${row.studentId}`}
             className={cn(
-              'card card-pad group relative flex animate-scale-in flex-col items-center text-center transition-shadow hover:shadow-raised',
+              'card card-pad group flex animate-scale-in flex-col items-center text-center transition-shadow hover:shadow-raised',
               style.order,
               style.lift,
+              style.surface,
             )}
             style={{ animationDelay: `${index * 80}ms` }}
           >
-            <span
-              className={cn(
-                'absolute -top-3 flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold shadow-raised',
-                style.badge,
+            <span className="pill-mono mb-3">
+              {rank === 1 ? (
+                <Crown className="h-3 w-3" aria-hidden />
+              ) : (
+                <Medal className="h-3 w-3" aria-hidden />
               )}
-              style={style.badgeStyle}
-            >
-              {rank}
+              {String(rank).padStart(2, '0')}
             </span>
-            {rank === 1 ? (
-              <Crown className="mb-1 h-5 w-5 text-smile" aria-hidden />
-            ) : (
-              <Medal className="mb-1 h-5 w-5 text-squid/30" aria-hidden />
-            )}
-            <Avatar name={row.fullName} size={rank === 1 ? 'xl' : 'lg'} className={style.ring} />
+            <Avatar
+              name={row.fullName}
+              size={rank === 1 ? 'xl' : 'lg'}
+              className={cn(style.ring, rank === 1 && 'bg-smile text-white')}
+            />
             <p className="mt-3 truncate font-semibold text-squid">{row.fullName}</p>
             <p className="truncate text-xs text-squid/50">{row.roleName ?? 'Unassigned'}</p>
-            <p className="mt-2 font-mono text-2xl font-bold tabular-nums text-squid">
+            <p
+              className={cn(
+                'mt-2 font-mono text-2xl font-bold tabular-nums',
+                rank === 1 ? 'text-smile-dark dark:text-smile' : 'text-squid',
+              )}
+            >
               {formatNumber(row.totalPoints)}
-              <span className="ml-1 text-xs font-medium text-squid/50">pts</span>
+              <span className="ml-1 font-sans text-[10px] font-semibold uppercase tracking-widest text-squid/40">
+                pts
+              </span>
             </p>
           </Link>
         )

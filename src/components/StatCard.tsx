@@ -15,6 +15,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { cn } from '@/lib/utils'
 
 // Icons are looked up by key rather than accepted as a rendered element/component
 // prop: Server Components passing a lucide (forwardRef) component reference across
@@ -70,21 +71,37 @@ export function StatCard({
   icon?: keyof typeof ICONS
 }) {
   const Icon = icon ? ICONS[icon] : null
+  // Figures, ratios and percentages ("42", "42/48", "87%") read as data;
+  // anything with letters is a label and keeps the sans treatment.
+  const numeric = typeof value === 'number' || /^[\d.,%/\s+-]+$/.test(value)
 
   return (
-    <div className="card card-pad transition-shadow hover:shadow-raised">
-      <div className="flex items-center gap-2">
+    <div className="card card-pad flex flex-col transition-shadow hover:shadow-raised">
+      <div className="flex items-start justify-between gap-3">
+        <p className="truncate text-sm font-medium text-squid/60">{label}</p>
         {Icon ? (
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-smile/10 text-smile">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-smile/10 text-smile">
             <Icon className="h-4 w-4" aria-hidden />
           </span>
         ) : null}
-        <p className="truncate text-xs font-semibold uppercase tracking-wide text-squid/60">{label}</p>
       </div>
-      <p className="mt-2 truncate text-3xl font-bold tabular-nums text-squid">
+      <p
+        className={cn(
+          'mt-3 truncate font-bold text-squid',
+          // Figures get the ledger treatment; a name ("Current #1") would look
+          // absurd at 28px mono, so text values stay sans and a size down.
+          numeric
+            ? 'font-mono text-[28px] leading-none tabular-nums'
+            : 'text-xl leading-snug',
+        )}
+      >
         {typeof value === 'number' ? <CountUp value={value} /> : value}
       </p>
-      {hint ? <p className="mt-1 truncate text-xs text-squid/60">{hint}</p> : null}
+      {hint ? (
+        <p className="mt-4 truncate border-t border-surface-border pt-3 text-xs text-squid/55">
+          {hint}
+        </p>
+      ) : null}
     </div>
   )
 }

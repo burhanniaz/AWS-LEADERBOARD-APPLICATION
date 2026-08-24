@@ -4,7 +4,7 @@ import { Avatar } from '@/components/Avatar'
 import { ColorBadge } from '@/components/ColorBadge'
 import { RankBadge } from '@/components/RankBadge'
 import type { LeaderboardRow } from '@/lib/leaderboard'
-import { departmentLabel, formatNumber, pluralize } from '@/lib/utils'
+import { cn, departmentLabel, formatNumber, pluralize } from '@/lib/utils'
 
 export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
   if (rows.length === 0) {
@@ -25,23 +25,23 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
       <div className="table-wrap hidden md:block">
         <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="border-b border-surface-border bg-surface-muted text-left">
-              <th scope="col" className="w-20 px-4 py-3 font-semibold text-squid/70">
+            <tr className="border-b border-surface-border text-left text-[10px] font-semibold uppercase tracking-widest text-squid/45">
+              <th scope="col" className="w-16 px-4 py-3">
                 Rank
               </th>
-              <th scope="col" className="px-4 py-3 font-semibold text-squid/70">
+              <th scope="col" className="px-4 py-3">
                 Builder
               </th>
-              <th scope="col" className="px-4 py-3 font-semibold text-squid/70">
+              <th scope="col" className="px-4 py-3">
                 Role
               </th>
-              <th scope="col" className="px-4 py-3 font-semibold text-squid/70">
+              <th scope="col" className="px-4 py-3">
                 Breakdown
               </th>
-              <th scope="col" className="px-4 py-3 text-right font-semibold text-squid/70">
+              <th scope="col" className="px-4 py-3 text-right">
                 Quality
               </th>
-              <th scope="col" className="px-4 py-3 text-right font-semibold text-squid/70">
+              <th scope="col" className="px-4 py-3 text-right">
                 Points
               </th>
             </tr>
@@ -72,14 +72,16 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
                 </td>
                 <td className="px-4 py-3">
                   {row.roleName ? (
-                    <ColorBadge color={row.roleColor}>{row.roleName}</ColorBadge>
+                    <ColorBadge color={row.roleColor} plain>
+                      {row.roleName}
+                    </ColorBadge>
                   ) : (
                     <span className="text-xs text-squid/60">Unassigned</span>
                   )}
                 </td>
                 <td className="px-4 py-3">
                   <div
-                    className="flex h-2 w-40 overflow-hidden rounded-full bg-surface-muted"
+                    className="flex h-1.5 w-40 overflow-hidden rounded-full bg-squid/[0.07]"
                     role="img"
                     aria-label={row.breakdown
                       .map((bucket) => `${bucket.name}: ${formatNumber(bucket.points)} points`)
@@ -98,8 +100,15 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
                     ))}
                   </div>
                 </td>
-                <td className="px-4 py-3 text-right font-mono tabular-nums text-squid/70">{row.quality}%</td>
-                <td className="px-4 py-3 text-right font-mono text-base font-bold tabular-nums text-squid">
+                <td className="px-4 py-3 text-right font-mono text-xs tabular-nums text-squid/50">
+                  {row.quality}%
+                </td>
+                <td
+                  className={cn(
+                    'px-4 py-3 text-right font-mono text-base font-bold tabular-nums',
+                    row.rank === 1 ? 'text-smile-dark dark:text-smile' : 'text-squid',
+                  )}
+                >
                   {formatNumber(row.totalPoints)}
                 </td>
               </tr>

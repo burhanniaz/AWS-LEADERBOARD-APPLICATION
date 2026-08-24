@@ -54,34 +54,38 @@ export function TopBar({
           <span className="truncate text-lg font-extrabold tracking-tight text-squid">
             {resolvedTitle}
           </span>
-          {pill ? (
-            <span className="badge hidden bg-smile/10 text-smile sm:inline-flex">{pill}</span>
-          ) : null}
+          {pill ? <span className="pill-mono hidden sm:inline-flex">{pill}</span> : null}
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
+          <ThemeToggle tone="outlined" />
+
           {actions ?? (
-            <span className="hidden items-center gap-1 sm:flex">
+            <span className="hidden items-center gap-2 sm:flex">
               <IconButton label="Search">
-                <Search className="h-4 w-4" aria-hidden />
+                <Search className="h-[18px] w-[18px]" aria-hidden />
               </IconButton>
               <IconButton label="Notifications">
-                <Bell className="h-4 w-4" aria-hidden />
+                <span className="relative">
+                  <Bell className="h-[18px] w-[18px]" aria-hidden />
+                  <span
+                    className="absolute -right-0.5 -top-0.5 h-1.5 w-1.5 rounded-full bg-smile"
+                    aria-hidden
+                  />
+                </span>
               </IconButton>
               <IconButton label="Help">
-                <HelpCircle className="h-4 w-4" aria-hidden />
+                <HelpCircle className="h-[18px] w-[18px]" aria-hidden />
               </IconButton>
             </span>
           )}
 
-          <ThemeToggle tone="surface" className="md:hidden" />
-
           {isAuthed && userName ? (
-            <Avatar name={userName} size="sm" className="ml-1" />
+            <Avatar name={userName} size="sm" square />
           ) : (
             <Link
               href="/login"
-              className="ml-1 rounded-md px-3 py-1.5 text-sm font-semibold text-squid/70 transition-colors hover:bg-squid/10 hover:text-squid"
+              className="rounded-xl border border-surface-border bg-surface/50 px-3 py-1.5 text-sm font-semibold text-squid/70 transition-colors hover:bg-surface hover:text-squid"
             >
               Sign in
             </Link>
@@ -95,12 +99,7 @@ export function TopBar({
 
 function IconButton({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <button
-      type="button"
-      aria-label={label}
-      title={label}
-      className="flex h-9 w-9 items-center justify-center rounded-md text-squid/60 transition-colors hover:bg-squid/10 hover:text-squid"
-    >
+    <button type="button" aria-label={label} title={label} className="icon-btn">
       {children}
     </button>
   )

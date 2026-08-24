@@ -10,17 +10,21 @@ const SIZES = {
 export function Avatar({
   name,
   size = 'md',
+  square = false,
   className,
 }: {
   name: string
   size?: keyof typeof SIZES
+  /** Rounded-square treatment used for the account chip in the rail and top bar. */
+  square?: boolean
   className?: string
 }) {
   return (
     <span
       aria-hidden
       className={cn(
-        'flex shrink-0 items-center justify-center rounded-full bg-ink font-bold text-smile',
+        'flex shrink-0 items-center justify-center bg-ink font-bold text-smile',
+        square ? 'rounded-xl' : 'rounded-full',
         SIZES[size],
         className,
       )}

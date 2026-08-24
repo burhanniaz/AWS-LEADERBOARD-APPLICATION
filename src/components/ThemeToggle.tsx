@@ -8,8 +8,11 @@ import { useEffect, useState } from 'react'
  * background (the top bar on mobile, where the rail is hidden).
  */
 const TONES = {
-  ink: 'text-white/80 hover:bg-white/10 hover:text-white',
-  surface: 'text-squid/70 hover:bg-squid/10 hover:text-squid',
+  ink: 'rounded-md text-white/80 hover:bg-white/10 hover:text-white',
+  surface: 'rounded-md text-squid/70 hover:bg-squid/10 hover:text-squid',
+  /** Matches the top bar's outlined utility cluster. */
+  outlined:
+    'rounded-xl border border-surface-border bg-surface/50 text-squid/55 hover:bg-surface hover:text-squid',
 }
 
 export function ThemeToggle({
@@ -41,9 +44,9 @@ export function ThemeToggle({
       onClick={toggle}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md transition-colors ${TONES[tone]} ${className}`}
+      className={`flex h-9 w-9 shrink-0 items-center justify-center transition-colors ${TONES[tone]} ${className}`}
     >
-      {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+      {isDark ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
     </button>
   )
 }
