@@ -47,7 +47,7 @@ export function TopBar({
     'Leaderboard'
 
   return (
-    <header className="sticky top-0 z-30 border-b border-surface-border bg-surface/95 dark:bg-header/95">
+    <header className="sticky top-0 z-30 border-b border-surface-border bg-surface-muted dark:bg-header">
       <div className="container-page flex h-16 items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
           {mobileNav ?? <MobileNav isAuthed={isAuthed} />}
