@@ -24,6 +24,7 @@ export type LeaderboardRow = {
   department: string | null
   roleName: string | null
   roleColor: string | null
+  joinedAt: Date
   totalPoints: number
   quality: number
   evaluationCount: number
@@ -79,7 +80,7 @@ function pointsFor(score: number, weight: number) {
 // which never renders bio/whatsapp/rollNumber/etc, so there's no reason to
 // pull that (potentially long) text off the wire for every row on every
 // board view.
-type StudentWithRole = Pick<Student, 'id' | 'fullName' | 'email' | 'department'> & {
+type StudentWithRole = Pick<Student, 'id' | 'fullName' | 'email' | 'department' | 'joinedAt'> & {
   roleId: string | null
   roleName: string | null
   roleColor: string | null
@@ -104,7 +105,7 @@ async function fetchLeaderboard(filters: LeaderboardFilters): Promise<Leaderboar
   // Independent of each other — run concurrently instead of round-tripping twice.
   const [students, evaluations] = await Promise.all([
     sql<StudentWithRole[]>`
-    SELECT s.id, s."fullName", s.email, s.department,
+    SELECT s.id, s."fullName", s.email, s.department, s."joinedAt",
            ranked.role_id as "roleId", ranked.role_name as "roleName", ranked.role_color as "roleColor"
     FROM "Student" s
     LEFT JOIN LATERAL (
@@ -191,6 +192,7 @@ async function fetchLeaderboard(filters: LeaderboardFilters): Promise<Leaderboar
       department: student.department,
       roleName: student.roleName,
       roleColor: student.roleColor,
+      joinedAt: student.joinedAt,
       totalPoints: Math.round(totalPoints * 10) / 10,
       quality: maxSum ? Math.round((rawSum / maxSum) * 1000) / 10 : 0,
       evaluationCount: studentEvaluations.length,
@@ -227,8 +229,12 @@ export const getLeaderboard = unstable_cache(fetchLeaderboard, ['leaderboard'], 
 })
 
 async function fetchCycleStats(cycleId: string) {
-  const [[{ count: studentCount }], [{ count: evaluationCount }], [{ rawSum, maxSum }]] = await Promise.all([
-    sql<{ count: number }[]>`SELECT COUNT(*)::int as count FROM "Student" WHERE status != 'INACTIVE'`,
+  const [[roster], [{ count: evaluationCount }], [{ rawSum, maxSum }]] = await Promise.all([
+    sql<{ activeCount: number; alumniCount: number }[]>`
+      SELECT COUNT(*) FILTER (WHERE status = 'ACTIVE')::int as "activeCount",
+             COUNT(*) FILTER (WHERE status = 'ALUMNI')::int as "alumniCount"
+      FROM "Student"
+    `,
     sql<{ count: number }[]>`SELECT COUNT(*)::int as count FROM "Evaluation" WHERE "cycleId" = ${cycleId}`,
     sql<{ rawSum: number; maxSum: number }[]>`
       SELECT COALESCE(SUM(score), 0)::float as "rawSum", COALESCE(SUM("maxScore"), 0)::float as "maxSum"
@@ -236,9 +242,16 @@ async function fetchCycleStats(cycleId: string) {
     `,
   ])
 
+  const studentCount = roster.activeCount + roster.alumniCount
+
   return {
     studentCount,
+    activeCount: roster.activeCount,
+    alumniCount: roster.alumniCount,
     evaluationCount,
+    // Per-builder throughput is the headline number's "so what" — 189 means
+    // little until you know it's spread across the whole roster.
+    perBuilder: studentCount ? Math.round((evaluationCount / studentCount) * 10) / 10 : 0,
     averageQuality: maxSum ? Math.round((rawSum / maxSum) * 1000) / 10 : 0,
   }
 }
@@ -246,3 +259,148 @@ async function fetchCycleStats(cycleId: string) {
 export const getCycleStats = unstable_cache(fetchCycleStats, ['cycle-stats'], {
   tags: [CACHE_TAG],
 })
+
+export type RecentEvaluation = {
+  id: string
+  title: string
+  score: number
+  maxScore: number
+  occurredAt: Date
+  studentId: string
+  fullName: string
+  categoryName: string
+  categoryColor: string
+}
+
+async function fetchRecentEvaluations(cycleId: string, limit = 5) {
+  return sql<RecentEvaluation[]>`
+    SELECT e.id, e.title, e.score, e."maxScore", e."occurredAt",
+           s.id as "studentId", s."fullName",
+           c.name as "categoryName", c.color as "categoryColor"
+    FROM "Evaluation" e
+    JOIN "Student" s ON s.id = e."studentId"
+    JOIN "Category" c ON c.id = e."categoryId"
+    WHERE e."cycleId" = ${cycleId}
+    ORDER BY e."occurredAt" DESC, e."createdAt" DESC
+    LIMIT ${limit}
+  `
+}
+
+export const getRecentEvaluations = unstable_cache(fetchRecentEvaluations, ['recent-evaluations'], {
+  tags: [CACHE_TAG],
+})
+
+export type MomentumPoint = {
+  date: string
+  points: number
+  evaluations: number
+  quality: number
+  /** Synthetic cycle-start zero, not a real evaluation day. */
+  baseline?: boolean
+}
+
+export type MomentumSeries = {
+  studentId: string
+  fullName: string
+  points: MomentumPoint[]
+}
+
+/**
+ * Cumulative running totals per builder, used by the momentum chart. Points and
+ * evaluation counts accumulate over the cycle; quality is a running average of
+ * everything scored so far rather than a per-day figure, so the line reads as
+ * "how good has this builder been overall" instead of spiking on a single day.
+ */
+async function fetchMomentum(cycleId: string, studentIds: string[]): Promise<MomentumSeries[]> {
+  if (studentIds.length === 0) return []
+
+  const [cycle] = await sql<{ startDate: Date }[]>`
+    SELECT "startDate" FROM "Cycle" WHERE id = ${cycleId}
+  `
+
+  const daily = await sql<
+    {
+      studentId: string
+      fullName: string
+      day: string
+      points: number
+      evaluations: number
+      rawSum: number
+      maxSum: number
+    }[]
+  >`
+    SELECT e."studentId", s."fullName",
+           to_char(e."occurredAt", 'YYYY-MM-DD') as day,
+           COALESCE(SUM(e.score * c.weight), 0)::float as points,
+           COUNT(*)::int as evaluations,
+           COALESCE(SUM(e.score), 0)::float as "rawSum",
+           COALESCE(SUM(e."maxScore"), 0)::float as "maxSum"
+    FROM "Evaluation" e
+    JOIN "Category" c ON c.id = e."categoryId"
+    JOIN "Student" s ON s.id = e."studentId"
+    WHERE e."cycleId" = ${cycleId} AND e."studentId" = ANY(${studentIds})
+    GROUP BY e."studentId", s."fullName", day
+    ORDER BY day ASC
+  `
+
+  // Every series is anchored to a zero point at the cycle's start. Without it a
+  // cohort whose evaluations all landed on one day yields a single coordinate,
+  // and a one-point SVG path draws nothing at all. Dates are ISO strings, so
+  // lexicographic comparison is chronological.
+  const days = [...new Set(daily.map((row) => row.day))].sort()
+  const earliest = days[0]
+  const cycleStart = cycle ? cycle.startDate.toISOString().slice(0, 10) : earliest
+  const start = earliest && earliest < cycleStart ? earliest : cycleStart
+
+  // If the cycle began on the same day as its only evaluations, the start date
+  // is no help — fall back to the day before so there are still two points.
+  const anchor = start && start < earliest ? start : shiftDay(earliest, -1)
+
+  // Preserve the caller's ordering (rank #1 first) so the chart's series colours
+  // stay stable regardless of who happened to be evaluated earliest.
+  return studentIds.flatMap((studentId) => {
+    const rows = daily.filter((row) => row.studentId === studentId)
+    if (rows.length === 0) return []
+
+    let points = 0
+    let evaluations = 0
+    let rawSum = 0
+    let maxSum = 0
+
+    const baseline: MomentumPoint[] =
+      anchor && anchor < rows[0].day
+        ? [{ date: anchor, points: 0, evaluations: 0, quality: 0, baseline: true }]
+        : []
+
+    return [
+      {
+        studentId,
+        fullName: rows[0].fullName,
+        points: baseline.concat(
+          rows.map((row) => {
+            points += row.points
+            evaluations += row.evaluations
+            rawSum += row.rawSum
+            maxSum += row.maxSum
+            return {
+              date: row.day,
+              points: Math.round(points * 10) / 10,
+              evaluations,
+              quality: maxSum ? Math.round((rawSum / maxSum) * 1000) / 10 : 0,
+            }
+          }),
+        ),
+      },
+    ]
+  })
+}
+
+/** Shift an ISO `YYYY-MM-DD` string by whole days, staying in UTC. */
+function shiftDay(date: string, days: number) {
+  if (!date) return date
+  return new Date(new Date(`${date}T00:00:00Z`).getTime() + days * 86_400_000)
+    .toISOString()
+    .slice(0, 10)
+}
+
+export const getMomentum = unstable_cache(fetchMomentum, ['momentum'], { tags: [CACHE_TAG] })

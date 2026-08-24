@@ -38,11 +38,6 @@ export function pluralize(count: number, singular: string, plural = `${singular}
 }
 
 // Shared silver/bronze medal colors — kept in one place so Podium and RankBadge can't drift apart.
-export const RANK_COLORS: Record<2 | 3, string> = {
-  2: '#C0C6CE',
-  3: '#CD8B62',
-}
-
 const DEPARTMENT_LABELS: Record<string, string> = {
   COMPUTER_SCIENCE: 'Computer Science',
   SOFTWARE_ENGINEERING: 'Software Engineering',

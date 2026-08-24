@@ -63,11 +63,14 @@ export function StatCard({
   label,
   value,
   hint,
+  stats,
   icon,
 }: {
   label: string
   value: string | number
   hint?: string
+  /** Up to two supporting figures shown in the card's divided footer. */
+  stats?: { label: string; value: string }[]
   icon?: keyof typeof ICONS
 }) {
   const Icon = icon ? ICONS[icon] : null
@@ -87,7 +90,9 @@ export function StatCard({
       </div>
       <p
         className={cn(
-          'mt-3 truncate font-bold text-squid',
+          // `mb-5` is the minimum gap; the footer's `mt-auto` then absorbs any
+          // extra height so footers line up across cards of unequal content.
+          'mb-5 mt-3 truncate font-bold text-squid',
           // Figures get the ledger treatment; a name ("Current #1") would look
           // absurd at 28px mono, so text values stay sans and a size down.
           numeric
@@ -97,7 +102,18 @@ export function StatCard({
       >
         {typeof value === 'number' ? <CountUp value={value} /> : value}
       </p>
-      {hint ? (
+      {stats?.length ? (
+        <dl className="mt-auto grid grid-cols-2 gap-3 border-t border-surface-border pt-3">
+          {stats.map((stat) => (
+            <div key={stat.label} className="min-w-0">
+              <dt className="truncate text-[11px] text-squid/45">{stat.label}</dt>
+              <dd className="truncate font-mono text-sm font-semibold tabular-nums text-squid/80">
+                {stat.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      ) : hint ? (
         <p className="mt-4 truncate border-t border-surface-border pt-3 text-xs text-squid/55">
           {hint}
         </p>
