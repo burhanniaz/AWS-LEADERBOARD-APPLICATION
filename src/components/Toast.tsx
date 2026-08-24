@@ -54,7 +54,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             onFocus={() => clearTimeout(timers.current.get(toast.id))}
             onBlur={() => schedule(toast.id)}
             tabIndex={-1}
-            className={`pointer-events-auto flex w-full max-w-sm animate-slide-down items-start gap-2 rounded-lg border p-3 pr-2 text-sm shadow-raised backdrop-blur-sm ${
+            className={`pointer-events-auto flex w-full max-w-sm animate-slide-down items-start gap-2 rounded-lg border p-3 pr-2 text-sm shadow-raised backdrop-blur-xl backdrop-saturate-150 ${
               toast.type === 'error'
                 ? 'border-aws-red/30 bg-aws-red/10 text-aws-red'
                 : 'border-aws-green/30 bg-aws-green/10 text-aws-green'

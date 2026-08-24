@@ -48,6 +48,9 @@ const config: Config = {
         card: '0 1px 4px rgba(18, 13, 9, 0.10)',
         raised: '0 4px 16px rgba(18, 13, 9, 0.14)',
         glow: '0 8px 24px rgba(255, 153, 0, 0.35)',
+        // Glass pane: a faint inner top highlight (the lit edge of frosted
+        // glass) over a soft ambient drop shadow.
+        glass: 'inset 0 1px 0 0 rgba(255, 255, 255, 0.12), 0 4px 24px rgba(18, 13, 9, 0.10)',
       },
       keyframes: {
         'fade-up': {

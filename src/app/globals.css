@@ -50,11 +50,14 @@
     --color-aws-green: 56 199 126;
     --color-aws-red: 255 107 91;
 
-    /* Dark mode stays opaque and matte — no glass, no page glow. */
-    --card-alpha: 1;
-    --page-glow-a: 0;
-    --page-glow-b: 0;
-    --page-glow-c: 0;
+    /* Dark mode is now frosted glass too: translucent panels over a softly
+       lit ink page. The blooms are dimmer than light mode so the console
+       stays calm, but non-zero so glass has warmth to refract instead of
+       reading as flat grey. */
+    --card-alpha: 0.55;
+    --page-glow-a: 0.14;
+    --page-glow-b: 0.1;
+    --page-glow-c: 0.07;
   }
 
   html {
@@ -99,19 +102,22 @@
     @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
-  /* Frosted glass in light mode; the `.dark` override below drops the blur
-     entirely (rather than blurring by 0px) so dark cards stay matte and don't
-     pay for a needless compositing layer. */
+  /* Frosted glass in both themes: a translucent surface (alpha is a
+     theme-aware token) over a blur+saturate backdrop filter, finished with a
+     faint inner top highlight so the pane catches light like real glass.
+     Where a browser can't blur, the @supports fallback below makes the
+     surface opaque so nothing shows through unintentionally. */
   .card {
-    @apply rounded-2xl border border-surface-border shadow-card transition-colors duration-200;
+    @apply rounded-2xl border border-surface-border shadow-glass transition-colors duration-200;
     background-color: rgb(var(--color-surface) / var(--card-alpha));
     -webkit-backdrop-filter: blur(24px) saturate(150%);
     backdrop-filter: blur(24px) saturate(150%);
   }
 
-  .dark .card {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
+  @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .card {
+      background-color: rgb(var(--color-surface));
+    }
   }
 
   .card-pad {
