@@ -3,6 +3,7 @@ import { ExternalLink, LogOut } from 'lucide-react'
 import { AdminMobileNav, AdminNavLinks } from '@/components/AdminNavLinks'
 import { AppRail } from '@/components/AppRail'
 import { TopBar } from '@/components/TopBar'
+import { PageTransition } from '@/components/PageTransition'
 import { logoutAction } from '@/lib/actions'
 import { requireAdmin } from '@/lib/guard'
 
@@ -49,7 +50,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           }
         />
 
-        <main className="flex-1 pb-16">{children}</main>
+        <main className="flex-1 pb-16">
+          <PageTransition>{children}</PageTransition>
+        </main>
       </div>
     </div>
   )

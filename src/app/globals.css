@@ -80,6 +80,18 @@
   *:focus-visible {
     @apply outline-none ring-2 ring-aws-blue ring-offset-2 ring-offset-surface;
   }
+
+  /* Honor motion sensitivity: the page-change reveal and other entrance
+     animations settle instantly instead of moving/fading across the viewport. */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-page-in,
+    .animate-fade-up,
+    .animate-fade-in,
+    .animate-scale-in,
+    .animate-slide-down {
+      animation: none !important;
+    }
+  }
 }
 
 @layer components {

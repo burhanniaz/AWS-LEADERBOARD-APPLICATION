@@ -66,12 +66,19 @@ const config: Config = {
           '0%': { opacity: '0', transform: 'translateY(-8px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        // Page-change reveal: a calm settle — soft fade, gentle rise, a whisper
+        // of blur clearing — so a new route eases in rather than snapping.
+        'page-in': {
+          '0%': { opacity: '0', transform: 'translateY(10px)', filter: 'blur(6px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)', filter: 'blur(0)' },
+        },
       },
       animation: {
         'fade-up': 'fade-up 0.3s ease-out both',
         'fade-in': 'fade-in 0.2s ease-out both',
         'scale-in': 'scale-in 0.2s ease-out both',
         'slide-down': 'slide-down 0.2s ease-out both',
+        'page-in': 'page-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both',
       },
     },
   },
