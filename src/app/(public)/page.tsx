@@ -64,10 +64,10 @@ async function Board({ searchParams }: { searchParams: SearchParams }) {
     activeCycle
       ? getMomentum(
           activeCycle.id,
-          scored.slice(0, 2).map((row) => row.studentId),
+          scored.slice(0, 5).map((row) => row.studentId),
         )
       : Promise.resolve([]),
-    activeCycle ? getRecentEvaluations(activeCycle.id, 5) : Promise.resolve([]),
+    activeCycle ? getRecentEvaluations(activeCycle.id, 3) : Promise.resolve([]),
   ])
 
   return (

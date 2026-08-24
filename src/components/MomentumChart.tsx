@@ -26,6 +26,23 @@ const PAD_X = 8
 const PAD_Y = 12
 
 /**
+ * Up to five ranked builders. Rank #1 keeps the brand accent and the area fill;
+ * the rest take distinct hues. Dash patterns vary alongside colour so the series
+ * stay separable without relying on colour vision alone — four of the five hues
+ * are theme-aware tokens, and the purple is a mid-tone that holds up on both the
+ * cream and ink backgrounds.
+ */
+const SERIES = [
+  { color: 'rgb(var(--color-smile))', dash: undefined },
+  { color: 'rgb(var(--color-aws-blue))', dash: '6 4' },
+  { color: 'rgb(var(--color-aws-green))', dash: '2 4' },
+  { color: '#7C5FC4', dash: '10 4 2 4' },
+  { color: 'rgb(var(--color-aws-red))', dash: '1 5' },
+] as const
+
+const seriesStyle = (index: number) => SERIES[index % SERIES.length]
+
+/**
  * Cumulative momentum for the top two builders, drawn as inline SVG rather than
  * pulling in a charting library — the shape is two monotonic series, which is
  * far less code than a dependency and keeps the page free of client-side chart
@@ -101,16 +118,17 @@ export function MomentumChart({
       setMetric={setMetric}
       range={range}
       setRange={setRange}
-      legend={trimmed.map((s, i) => ({ name: s.fullName, lead: i === 0 }))}
+      legend={trimmed.map((s, i) => ({ name: s.fullName, color: seriesStyle(i).color }))}
     >
       <svg
         viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
         className="h-[200px] w-full"
         preserveAspectRatio="none"
         role="img"
-        aria-label={`${METRICS.find((m) => m.key === metric)!.label} over ${cycleName} for ${trimmed
-          .map((s) => s.fullName)
-          .join(' and ')}`}
+        aria-label={`${METRICS.find((m) => m.key === metric)!.label} over ${cycleName} for ${new Intl.ListFormat(
+          undefined,
+          { style: 'long', type: 'conjunction' },
+        ).format(trimmed.map((s) => s.fullName))}`}
       >
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
@@ -150,6 +168,7 @@ export function MomentumChart({
             })
             .join(' L ')
           const lead = index === 0
+          const style = seriesStyle(index)
 
           return (
             <g key={s.studentId}>
@@ -162,10 +181,10 @@ export function MomentumChart({
               <path
                 d={`M ${path}`}
                 fill="none"
-                stroke={lead ? 'rgb(var(--color-smile))' : 'rgb(var(--color-squid))'}
-                strokeOpacity={lead ? 1 : 0.35}
-                strokeWidth={2}
-                strokeDasharray={lead ? undefined : '4 4'}
+                stroke={style.color}
+                strokeOpacity={lead ? 1 : 0.8}
+                strokeWidth={lead ? 2.5 : 1.75}
+                strokeDasharray={style.dash}
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 vectorEffect="non-scaling-stroke"
@@ -205,7 +224,7 @@ function ChartShell({
   setMetric: (value: MetricKey) => void
   range: RangeKey
   setRange: (value: RangeKey) => void
-  legend: { name: string; lead: boolean }[]
+  legend: { name: string; color: string }[]
   children: React.ReactNode
 }) {
   return (
@@ -214,7 +233,8 @@ function ChartShell({
         <div>
           <h2 className="font-bold text-squid">Cohort momentum</h2>
           <p className="mt-0.5 text-xs text-squid/50">
-            Cumulative totals, rank #1 vs rank #2 — {cycleName}
+            Cumulative totals,{' '}
+            {legend.length > 1 ? `top ${legend.length} builders` : 'rank #1'} — {cycleName}
           </p>
         </div>
         <div className="flex rounded-full border border-surface-border p-0.5" role="group" aria-label="Time range">
@@ -239,17 +259,18 @@ function ChartShell({
       </div>
 
       {legend.length ? (
-        <div className="mt-3 flex flex-wrap gap-4">
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5">
           {legend.map((item) => (
-            <span key={item.name} className="flex items-center gap-1.5 text-xs text-squid/55">
+            <span
+              key={item.name}
+              className="flex min-w-0 items-center gap-1.5 text-xs text-squid/55"
+            >
               <span
-                className={cn(
-                  'h-1.5 w-1.5 rounded-full',
-                  item.lead ? 'bg-smile' : 'bg-squid/30',
-                )}
+                className="h-1.5 w-1.5 shrink-0 rounded-full"
+                style={{ backgroundColor: item.color }}
                 aria-hidden
               />
-              {item.name}
+              <span className="truncate">{item.name}</span>
             </span>
           ))}
         </div>
