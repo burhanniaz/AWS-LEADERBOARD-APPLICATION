@@ -46,7 +46,7 @@ export function ThemeToggle({
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       className={`flex h-9 w-9 shrink-0 items-center justify-center transition-colors ${TONES[tone]} ${className}`}
     >
-      {isDark ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
+      {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
     </button>
   )
 }

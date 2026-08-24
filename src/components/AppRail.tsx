@@ -50,7 +50,7 @@ export function AppRail({ isAuthed, userName }: { isAuthed: boolean; userName?: 
                   : 'text-white/45 hover:bg-white/10 hover:text-white',
               )}
             >
-              <Icon className="h-[18px] w-[18px]" aria-hidden />
+              <Icon className="h-5 w-5" aria-hidden />
             </Link>
           )
         })}
@@ -63,7 +63,7 @@ export function AppRail({ isAuthed, userName }: { isAuthed: boolean; userName?: 
           aria-label="Help"
           className="flex h-9 w-9 items-center justify-center rounded-xl text-white/45 transition-colors hover:bg-white/10 hover:text-white"
         >
-          <HelpCircle className="h-[18px] w-[18px]" aria-hidden />
+          <HelpCircle className="h-5 w-5" aria-hidden />
         </a>
         {isAuthed && userName ? (
           <Link href="/admin" title={userName} aria-label={`Signed in as ${userName}`}>
@@ -76,7 +76,7 @@ export function AppRail({ isAuthed, userName }: { isAuthed: boolean; userName?: 
             aria-label="Sign in"
             className="flex h-9 w-9 items-center justify-center rounded-xl text-white/45 transition-colors hover:bg-white/10 hover:text-white"
           >
-            <LogIn className="h-[18px] w-[18px]" aria-hidden />
+            <LogIn className="h-5 w-5" aria-hidden />
           </Link>
         )}
       </div>

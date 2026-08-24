@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Bell, HelpCircle, Search } from 'lucide-react'
+import { Bell, HelpCircle } from 'lucide-react'
 import { Avatar } from '@/components/Avatar'
 import { MobileNav } from '@/components/MobileNav'
 import { ThemeToggle } from '@/components/ThemeToggle'
@@ -17,7 +17,7 @@ import { ADMIN_ITEM, NAV, isActive } from '@/components/nav-items'
  * is omitted the label is derived from the active nav item instead. Admin
  * pages pass an explicit one.
  *
- * The search / bell / help cluster is presentational for now; it matches the
+ * The bell / help cluster is presentational for now; it matches the
  * reference's icon grouping without claiming behavior that doesn't exist yet.
  */
 export function TopBar({
@@ -35,7 +35,7 @@ export function TopBar({
   userName?: string
   /** Overrides the default public menu — admin swaps in its own section nav. */
   mobileNav?: React.ReactNode
-  /** Replaces the presentational search/bell/help cluster. */
+  /** Replaces the presentational bell/help cluster. */
   actions?: React.ReactNode
   /** Secondary row under the bar, e.g. the admin section nav. */
   below?: React.ReactNode
@@ -47,7 +47,7 @@ export function TopBar({
     'Leaderboard'
 
   return (
-    <header className="sticky top-0 z-30 border-b border-surface-border bg-surface/70 backdrop-blur-xl backdrop-saturate-150 dark:bg-header/85">
+    <header className="sticky top-0 z-30 border-b border-surface-border bg-surface/95 dark:bg-header/95">
       <div className="container-page flex h-16 items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
           {mobileNav ?? <MobileNav isAuthed={isAuthed} />}
@@ -62,12 +62,9 @@ export function TopBar({
 
           {actions ?? (
             <span className="hidden items-center gap-2 sm:flex">
-              <IconButton label="Search">
-                <Search className="h-[18px] w-[18px]" aria-hidden />
-              </IconButton>
               <IconButton label="Notifications">
                 <span className="relative">
-                  <Bell className="h-[18px] w-[18px]" aria-hidden />
+                  <Bell className="h-5 w-5" aria-hidden />
                   <span
                     className="absolute -right-0.5 -top-0.5 h-1.5 w-1.5 rounded-full bg-smile"
                     aria-hidden
@@ -75,7 +72,7 @@ export function TopBar({
                 </span>
               </IconButton>
               <IconButton label="Help">
-                <HelpCircle className="h-[18px] w-[18px]" aria-hidden />
+                <HelpCircle className="h-5 w-5" aria-hidden />
               </IconButton>
             </span>
           )}
